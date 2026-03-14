@@ -6,6 +6,7 @@
 <title>WorkSphere HR</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Syne:wght@600;700&display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -22,14 +23,11 @@
   --white:#ffffff;--sidebar:225px;
 }
 body{font-family:'DM Sans',sans-serif;background:#f8fafc;color:var(--text);display:flex;min-height:100vh;font-size:14px}
-/* SIDEBAR */
 .sidebar{width:var(--sidebar);background:var(--navy);display:flex;flex-direction:column;min-height:100vh;position:fixed;left:0;top:0;bottom:0;z-index:100;overflow-y:auto}
 .logo-wrap{padding:16px 14px 12px;border-bottom:1px solid rgba(255,255,255,0.08)}
 .logo-inner{display:flex;align-items:center;gap:10px}
-.logo-img{width:38px;height:38px;border-radius:9px;object-fit:cover;background:var(--accent);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}
+.logo-img{width:38px;height:38px;border-radius:9px;background:var(--accent);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}
 .logo-img img{width:100%;height:100%;object-fit:cover;border-radius:9px}
-.logo-img .logo-fallback{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:white}
-.logo-text-wrap{overflow:hidden}
 .logo-name{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:#fff;letter-spacing:0.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .logo-sub{font-size:10px;color:var(--accent2);letter-spacing:1px;text-transform:uppercase;margin-top:1px}
 .nav-section{padding:14px 0 3px;font-size:10px;color:rgba(255,255,255,0.28);letter-spacing:1.2px;text-transform:uppercase;padding-left:14px}
@@ -37,17 +35,14 @@ body{font-family:'DM Sans',sans-serif;background:#f8fafc;color:var(--text);displ
 .nav-item:hover{background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.9)}
 .nav-item.active{background:rgba(99,102,241,0.16);color:white;border-left-color:var(--accent)}
 .nav-item .ni{font-size:14px;width:17px;text-align:center}
-/* MAIN */
 .main{margin-left:var(--sidebar);flex:1;display:flex;flex-direction:column;min-height:100vh}
 .topbar{background:white;border-bottom:1px solid var(--border);padding:0 26px;height:54px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
 .page-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:var(--text)}
 .topbar-right{display:flex;align-items:center;gap:10px}
 .avatar{width:33px;height:33px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:600;font-size:12px;overflow:hidden}
-.avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 .content{padding:22px 26px;flex:1}
-/* STAT CARDS */
 .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:22px}
-.stat-card{border-radius:12px;padding:17px 18px;color:white;position:relative;overflow:hidden}
+.stat-card{border-radius:12px;padding:17px 18px;color:white}
 .stat-card .sc-val{font-family:'Syne',sans-serif;font-size:26px;font-weight:700;line-height:1}
 .stat-card .sc-label{font-size:11.5px;opacity:0.85;margin-top:5px}
 .bg-blue{background:linear-gradient(135deg,#3b82f6,#2563eb)}
@@ -58,11 +53,9 @@ body{font-family:'DM Sans',sans-serif;background:#f8fafc;color:var(--text);displ
 .bg-teal{background:linear-gradient(135deg,#14b8a6,#0d9488)}
 .bg-navy{background:linear-gradient(135deg,#334155,#1e293b)}
 .bg-indigo{background:linear-gradient(135deg,#6366f1,#4f46e5)}
-/* PANELS */
 .panel{background:white;border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:16px}
 .panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
 .panel-title{font-weight:600;font-size:14.5px;color:var(--text)}
-/* BUTTONS */
 .btn{padding:7px 13px;border-radius:8px;font-size:12.5px;font-weight:500;cursor:pointer;border:none;transition:all 0.15s;font-family:'DM Sans',sans-serif;display:inline-flex;align-items:center;gap:5px}
 .btn-primary{background:var(--accent);color:white}.btn-primary:hover{background:#4f46e5}
 .btn-success{background:var(--green);color:white}.btn-success:hover{background:#059669}
@@ -70,9 +63,9 @@ body{font-family:'DM Sans',sans-serif;background:#f8fafc;color:var(--text);displ
 .btn-danger{background:var(--red);color:white}.btn-danger:hover{background:#dc2626}
 .btn-amber{background:var(--amber);color:white}.btn-amber:hover{background:#d97706}
 .btn-purple{background:var(--purple);color:white}.btn-purple:hover{background:#7c3aed}
+.btn-teal{background:var(--teal);color:white}.btn-teal:hover{background:#0d9488}
 .btn-sm{padding:5px 10px;font-size:11.5px}
 .btn-group{display:flex;gap:7px;flex-wrap:wrap}
-/* BADGES */
 .badge{padding:3px 8px;border-radius:20px;font-size:11px;font-weight:500}
 .badge-green{background:var(--green-soft);color:#059669}
 .badge-amber{background:var(--amber-soft);color:#d97706}
@@ -80,82 +73,84 @@ body{font-family:'DM Sans',sans-serif;background:#f8fafc;color:var(--text);displ
 .badge-blue{background:var(--blue-soft);color:#2563eb}
 .badge-purple{background:var(--purple-soft);color:#7c3aed}
 .badge-teal{background:var(--teal-soft);color:#0d9488}
-/* TABLE */
 .tbl{width:100%;border-collapse:collapse}
 .tbl th{text-align:left;font-size:10.5px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;padding:7px 11px;border-bottom:1px solid var(--border)}
 .tbl td{padding:9px 11px;border-bottom:1px solid var(--border);font-size:12.5px;color:var(--text2)}
 .tbl tr:last-child td{border-bottom:none}
 .tbl tr:hover td{background:#fafafa}
-/* FORM */
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:11px}
 .form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px;margin-bottom:11px}
+.form-row-4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:11px;margin-bottom:11px}
 .form-group{display:flex;flex-direction:column;gap:4px}
 .form-label{font-size:11.5px;font-weight:500;color:var(--text2)}
 .form-input{padding:7px 11px;border:1px solid var(--border);border-radius:8px;font-size:12.5px;font-family:'DM Sans',sans-serif;outline:none;transition:border 0.15s;background:white;color:var(--text)}
 .form-input:focus{border-color:var(--accent)}
-textarea.form-input{resize:vertical;min-height:70px}
-/* MODAL */
+textarea.form-input{resize:vertical;min-height:65px}
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px}
-.modal{background:white;border-radius:16px;padding:22px;width:100%;max-width:540px;max-height:90vh;overflow-y:auto}
+.modal{background:white;border-radius:16px;padding:22px;width:100%;max-width:580px;max-height:92vh;overflow-y:auto}
 .modal-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:15px;color:var(--text)}
-/* QA GRID */
-.qa-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:22px}
-.qa-card{background:white;border:1px solid var(--border);border-radius:10px;padding:13px;cursor:pointer;transition:all 0.15s;text-align:center}
-.qa-card:hover{border-color:var(--accent);background:var(--accent-soft)}
-.qa-icon{font-size:19px;margin-bottom:5px}
-.qa-label{font-size:11.5px;font-weight:500;color:var(--text2)}
-/* IO BAR */
 .io-bar{display:flex;align-items:center;gap:8px;padding:9px 13px;background:var(--accent-soft);border:1px solid #c7d2fe;border-radius:10px;margin-bottom:16px}
 .io-bar-text{font-size:12px;color:#4338ca;flex:1}
-/* CHART */
 .chart-wrap{position:relative;height:200px}
-/* LAYOUTS */
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:15px}
 .three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:13px}
-/* HIDDEN */
 .hidden{display:none!important}
-/* ALERT */
 .alert{padding:9px 13px;border-radius:8px;font-size:12.5px;margin-bottom:11px;display:flex;align-items:center;gap:7px}
 .alert-info{background:var(--blue-soft);color:#2563eb;border:1px solid #bfdbfe}
 .alert-success{background:var(--green-soft);color:#059669;border:1px solid #a7f3d0}
 .alert-warning{background:var(--amber-soft);color:#d97706;border:1px solid #fcd34d}
-/* FILE UPLOAD */
-.file-drop{border:2px dashed var(--border);border-radius:10px;padding:22px;text-align:center;cursor:pointer;transition:all 0.15s;background:#fafafa}
+.alert-purple{background:var(--purple-soft);color:#7c3aed;border:1px solid #ddd6fe}
+.file-drop{border:2px dashed var(--border);border-radius:10px;padding:20px;text-align:center;cursor:pointer;transition:all 0.15s;background:#fafafa}
 .file-drop:hover,.file-drop.drag-over{border-color:var(--accent);background:var(--accent-soft)}
 .file-drop-icon{font-size:28px;margin-bottom:7px}
 .file-drop-text{font-size:12.5px;color:var(--text2)}
 .file-drop-sub{font-size:11px;color:var(--text3);margin-top:3px}
-/* DOC PREVIEW THUMB */
 .doc-thumb{width:36px;height:36px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
 .doc-thumb img{width:36px;height:36px;object-fit:cover;border-radius:7px}
-/* BRANDING SETUP */
-.branding-preview{background:var(--navy);border-radius:12px;padding:16px;display:flex;align-items:center;gap:12px;margin-bottom:16px}
-.branding-preview .bp-logo{width:42px;height:42px;border-radius:9px;background:var(--accent);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
-.branding-preview .bp-logo img{width:100%;height:100%;object-fit:cover;border-radius:9px}
-.branding-preview .bp-name{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:white}
-.branding-preview .bp-sub{font-size:10px;color:var(--accent2);text-transform:uppercase;letter-spacing:1px}
-/* WEEKLY MANUAL ENTRY */
-.week-input-row{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;align-items:end;margin-bottom:10px;padding:12px;background:var(--gray-light);border-radius:10px}
-/* TABS */
 .tabs{display:flex;gap:3px;background:var(--gray-light);padding:3px;border-radius:9px;margin-bottom:18px}
 .tab{padding:6px 13px;border-radius:7px;font-size:12.5px;cursor:pointer;font-weight:500;color:var(--text3);transition:all 0.15s}
 .tab.active{background:white;color:var(--accent);box-shadow:0 1px 3px rgba(0,0,0,0.07)}
-/* SETTINGS CARD */
-.settings-section{margin-bottom:22px}
-.settings-section-title{font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px}
+/* RECEIPT SCAN */
+.scan-preview{width:100%;max-height:220px;object-fit:contain;border-radius:10px;border:1px solid var(--border);margin-bottom:12px}
+.scan-result-row{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--green-soft);border:1px solid #a7f3d0;border-radius:8px;margin-bottom:6px;font-size:12.5px;color:#065f46}
+.scan-result-row .sr-label{flex:1;font-weight:500}
+.scan-result-row .sr-val{font-weight:600;color:#059669}
+.scan-pending{background:var(--amber-soft);border-color:#fcd34d;color:#92400e}
+/* DAY SUMMARY CARD */
+.day-card{background:white;border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px}
+.day-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;cursor:pointer}
+.day-card-date{font-weight:600;font-size:13.5px;color:var(--text)}
+.day-card-total{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--green)}
+.day-card-breakdown{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding-top:10px;border-top:1px solid var(--border)}
+.day-card-item{text-align:center}
+.day-card-item-val{font-weight:600;font-size:13px;color:var(--text)}
+.day-card-item-label{font-size:10.5px;color:var(--text3);margin-top:2px}
+/* XLS IMPORT */
+.xls-preview{max-height:200px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;margin-top:10px}
+.xls-preview table{width:100%;border-collapse:collapse;font-size:11px}
+.xls-preview th{background:var(--accent-soft);color:var(--accent);padding:5px 8px;text-align:left;position:sticky;top:0}
+.xls-preview td{padding:4px 8px;border-bottom:1px solid var(--border);color:var(--text2)}
+/* SPINNER */
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(99,102,241,0.3);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* BRANDING */
+.branding-preview{background:var(--navy);border-radius:12px;padding:16px;display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.bp-logo{width:42px;height:42px;border-radius:9px;background:var(--accent);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
+.bp-logo img{width:100%;height:100%;object-fit:cover;border-radius:9px}
+.bp-name{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:white}
+.bp-sub{font-size:10px;color:var(--accent2);text-transform:uppercase;letter-spacing:1px}
 </style>
 </head>
 <body>
 
-<!-- SIDEBAR -->
 <div class="sidebar" id="sidebar">
   <div class="logo-wrap">
     <div class="logo-inner">
       <div class="logo-img" id="sidebar-logo-wrap">
-        <span class="logo-fallback" id="sidebar-logo-fallback">W</span>
-        <img id="sidebar-logo-img" src="" style="display:none"/>
+        <span id="sidebar-logo-fallback" style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:white">W</span>
+        <img id="sidebar-logo-img" src="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:9px"/>
       </div>
-      <div class="logo-text-wrap">
+      <div style="overflow:hidden">
         <div class="logo-name" id="sidebar-company-name">WorkSphere HR</div>
         <div class="logo-sub">Business Portal</div>
       </div>
@@ -174,7 +169,7 @@ textarea.form-input{resize:vertical;min-height:70px}
   <div class="nav-item" onclick="showPage('accidents')"><span class="ni">🚨</span> Accident Reporting</div>
   <div class="nav-item" onclick="showPage('applications')"><span class="ni">📋</span> Applications</div>
   <div class="nav-section">Finance</div>
-  <div class="nav-item" onclick="showPage('accounts')"><span class="ni">📊</span> Accounts Dashboard</div>
+  <div class="nav-item" onclick="showPage('accounts')"><span class="ni">📊</span> Accounts</div>
   <div class="nav-item" onclick="showPage('salesweekly')"><span class="ni">📈</span> Sales &amp; Expenses</div>
   <div class="nav-section">Tools</div>
   <div class="nav-item" onclick="showPage('reports')"><span class="ni">📑</span> HR Reports</div>
@@ -183,7 +178,6 @@ textarea.form-input{resize:vertical;min-height:70px}
   <div class="nav-item" onclick="showPage('settings')"><span class="ni">⚙️</span> Company Settings</div>
 </div>
 
-<!-- MAIN -->
 <div class="main">
   <div class="topbar">
     <div class="page-title" id="topbar-title">HR Dashboard</div>
@@ -195,21 +189,16 @@ textarea.form-input{resize:vertical;min-height:70px}
   <div class="content" id="content-area"></div>
 </div>
 
-<!-- MODAL -->
 <div class="modal-overlay hidden" id="modal-overlay">
   <div class="modal" id="modal-body"></div>
 </div>
 
 <script>
-// ── BRANDING STORE ──────────────────────────────────────────
-const BRAND = {
-  name: 'WorkSphere HR',
-  logoDataUrl: null,
-  logoFallback: 'W'
-};
+// ── BRAND ──────────────────────────────────────────────────
+const BRAND={name:'WorkSphere HR',logoDataUrl:null};
 
-// ── DATA STORE ──────────────────────────────────────────────
-const DB = {
+// ── DATA ───────────────────────────────────────────────────
+const DB={
   staff:[
     {id:1,name:"Alice Johnson",role:"HR Manager",dept:"HR",status:"Active",email:"alice@ws.com",phone:"07700111222",contract:"Full-time",startDate:"2022-03-01",salary:38000},
     {id:2,name:"Bob Carter",role:"Developer",dept:"Tech",status:"Active",email:"bob@ws.com",phone:"07700333444",contract:"Full-time",startDate:"2021-07-15",salary:45000},
@@ -217,8 +206,8 @@ const DB = {
     {id:4,name:"David Osei",role:"Accountant",dept:"Finance",status:"Active",email:"david@ws.com",phone:"07700777888",contract:"Full-time",startDate:"2020-05-20",salary:42000},
   ],
   leave:[
-    {id:1,staffId:1,name:"Alice Johnson",type:"Annual",from:"2026-03-20",to:"2026-03-25",days:5,status:"Pending"},
-    {id:2,staffId:3,name:"Clara Singh",type:"Sick",from:"2026-03-14",to:"2026-03-14",days:1,status:"Approved"},
+    {id:1,name:"Alice Johnson",type:"Annual",from:"2026-03-20",to:"2026-03-25",days:5,status:"Pending"},
+    {id:2,name:"Clara Singh",type:"Sick",from:"2026-03-14",to:"2026-03-14",days:1,status:"Approved"},
   ],
   attendance:[
     {id:1,name:"Alice Johnson",date:"2026-03-13",clockIn:"09:02",clockOut:"17:15",hours:8.2,status:"Present"},
@@ -227,24 +216,22 @@ const DB = {
     {id:4,name:"David Osei",date:"2026-03-13",clockIn:"09:30",clockOut:"17:00",hours:7.5,status:"Late"},
   ],
   invoices:[
-    {id:"INV-001",client:"Acme Corp",amount:1200,status:"Paid",date:"2026-02-10",due:"2026-03-10"},
-    {id:"INV-002",client:"BlueSky Ltd",amount:850,status:"Outstanding",date:"2026-03-01",due:"2026-04-01"},
-    {id:"INV-003",client:"Green Wave",amount:2400,status:"Draft",date:"2026-03-10",due:"2026-04-10"},
+    {id:"INV-001",client:"Acme Corp",amount:1200,status:"Paid",date:"2026-02-10",due:"2026-03-10",notes:""},
+    {id:"INV-002",client:"BlueSky Ltd",amount:850,status:"Outstanding",date:"2026-03-01",due:"2026-04-01",notes:""},
   ],
   expenses:[
-    {id:1,desc:"Office Supplies",category:"Operations",amount:120,date:"2026-03-01",status:"Approved",notes:""},
-    {id:2,desc:"Software Licences",category:"Tech",amount:350,date:"2026-03-05",status:"Approved",notes:""},
-    {id:3,desc:"Staff Training",category:"HR",amount:600,date:"2026-03-08",status:"Pending",notes:""},
+    {id:1,desc:"Office Supplies",category:"Operations",amount:120,date:"2026-03-01",status:"Approved",paidBy:"Alice Johnson",ref:"",notes:""},
+    {id:2,desc:"Software Licences",category:"Tech",amount:350,date:"2026-03-05",status:"Approved",paidBy:"Bob Carter",ref:"",notes:""},
+    {id:3,desc:"Staff Training",category:"HR",amount:600,date:"2026-03-08",status:"Pending",paidBy:"Alice Johnson",ref:"",notes:""},
   ],
   accidents:[
-    {id:1,reporter:"Bob Carter",date:"2026-03-10",type:"Near Miss",location:"Office",status:"Open",desc:"Slipped on wet floor near kitchen"},
+    {id:1,reporter:"Bob Carter",date:"2026-03-10",type:"Near Miss",location:"Office",status:"Open",desc:"Slipped on wet floor"},
   ],
   applications:[
     {id:1,name:"Emma White",role:"Marketing Manager",date:"2026-03-08",stage:"Interview",rating:4},
     {id:2,name:"Liam Brown",role:"Junior Developer",date:"2026-03-10",stage:"Applied",rating:3},
     {id:3,name:"Sophia Patel",role:"Sales Executive",date:"2026-03-12",stage:"Offer",rating:5},
   ],
-  // Documents now store file data
   documents:[
     {id:1,name:"Employee Handbook v3.pdf",type:"Policy",uploadedBy:"Alice Johnson",date:"2026-01-15",expires:"-",fileType:"pdf",fileData:null,fileSize:""},
     {id:2,name:"Bob Carter - Contract.pdf",type:"Contract",uploadedBy:"Alice Johnson",date:"2021-07-15",expires:"2027-07-15",fileType:"pdf",fileData:null,fileSize:""},
@@ -270,23 +257,25 @@ const DB = {
     {week:"W1 Mar",sales:3900,expenses:1200},
     {week:"W2 Mar",sales:4800,expenses:1600},
     {week:"W3 Mar",sales:3600,expenses:1050},
+  ],
+  // Daily summaries — each has breakdown by channel
+  dailySummaries:[
+    {
+      id:1,date:"2026-03-13",
+      channels:{cash:124.98,card:0,web:31.66,justeat:133.32,ubereat:25.92,deliveroo:101.60,foodhub:22.59,other:0},
+      totalSales:440.07,expenses:117.50,tillLeft:35.00,notes:"From receipt scan",source:"scan"
+    }
   ]
 };
 
 // ── UTILS ──────────────────────────────────────────────────
-function fmt(n){return'£'+Number(n).toLocaleString('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function fmt(n){return'£'+Number(n||0).toLocaleString('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2})}
 function today(){return new Date().toLocaleDateString('en-GB',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}
 function statusColor(s){return s==='Active'||s==='Approved'||s==='Paid'||s==='Processed'||s==='Present'?'badge-green':s==='Pending'||s==='Draft'||s==='Late'?'badge-amber':'badge-red'}
 function stageColor(s){return s==='Offer'?'badge-green':s==='Interview'?'badge-amber':s==='Applied'?'badge-blue':'badge-purple'}
 function fileIcon(ft){return ft==='pdf'?'📕':ft==='image'?'🖼️':ft==='word'?'📘':'📄'}
-function getFileType(name){
-  const ext=(name||'').split('.').pop().toLowerCase();
-  if(['pdf'].includes(ext)) return 'pdf';
-  if(['jpg','jpeg','png','gif','webp','bmp','svg','tiff','heic'].includes(ext)) return 'image';
-  if(['doc','docx'].includes(ext)) return 'word';
-  return 'other';
-}
-function formatBytes(bytes){if(!bytes)return'';if(bytes<1024)return bytes+'B';if(bytes<1048576)return(bytes/1024).toFixed(1)+'KB';return(bytes/1048576).toFixed(1)+'MB'}
+function getFileType(name){const ext=(name||'').split('.').pop().toLowerCase();if(['pdf'].includes(ext))return'pdf';if(['jpg','jpeg','png','gif','webp','bmp','svg','tiff','tif','heic'].includes(ext))return'image';if(['doc','docx'].includes(ext))return'word';return'other';}
+function formatBytes(b){if(!b)return'';if(b<1024)return b+'B';if(b<1048576)return(b/1024).toFixed(1)+'KB';return(b/1048576).toFixed(1)+'MB'}
 document.getElementById('topbar-date').textContent=today();
 
 // ── BRANDING ───────────────────────────────────────────────
@@ -301,133 +290,117 @@ function applyBranding(){
     document.getElementById('sidebar-logo-fallback').style.display='none';
   } else {
     document.getElementById('sidebar-logo-img').style.display='none';
-    document.getElementById('sidebar-logo-fallback').style.display='flex';
+    document.getElementById('sidebar-logo-fallback').style.display='';
   }
 }
 
 // ── MODAL ──────────────────────────────────────────────────
-function openModal(html){
-  document.getElementById('modal-body').innerHTML=html;
-  document.getElementById('modal-overlay').classList.remove('hidden');
-}
-function closeModal(){document.getElementById('modal-overlay').classList.add('hidden')}
-document.getElementById('modal-overlay').addEventListener('click',function(e){if(e.target===this)closeModal()})
+function openModal(html){document.getElementById('modal-body').innerHTML=html;document.getElementById('modal-overlay').classList.remove('hidden');}
+function closeModal(){document.getElementById('modal-overlay').classList.add('hidden');}
+document.getElementById('modal-overlay').addEventListener('click',function(e){if(e.target===this)closeModal();});
 
 // ── IO BAR ─────────────────────────────────────────────────
 function ioBar(section){
-  return `<div class="io-bar">
-    <span>🔄</span>
-    <span class="io-bar-text">Import or export all <strong>${section}</strong> data as JSON</span>
+  return `<div class="io-bar"><span>🔄</span><span class="io-bar-text">Import or export all <strong>${section}</strong> data as JSON</span>
     <button class="btn btn-outline btn-sm" onclick="importJSON('${section}')">⬆ Import JSON</button>
     <button class="btn btn-primary btn-sm" onclick="exportJSON('${section}')">⬇ Export JSON</button>
   </div>`;
 }
-
 function exportJSON(section){
-  const map={staff:'staff',leave:'leave',attendance:'attendance',invoices:'invoices',expenses:'expenses',accidents:'accidents',applications:'applications',documents:'documents',rota:'rota',payslips:'payslips',weeklyData:'weeklyData'};
-  const key=map[section]||section;
-  const blob=new Blob([JSON.stringify(DB[key]||DB,null,2)],{type:'application/json'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`worksphere_${key}_${Date.now()}.json`;a.click();
+  const blob=new Blob([JSON.stringify(DB[section]||DB,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`worksphere_${section}_${Date.now()}.json`;a.click();
 }
 function importJSON(section){
   const input=document.createElement('input');input.type='file';input.accept='.json';
-  input.onchange=e=>{
-    const r=new FileReader();
-    r.onload=ev=>{
-      try{
-        const parsed=JSON.parse(ev.target.result);
-        const map={staff:'staff',leave:'leave',attendance:'attendance',invoices:'invoices',expenses:'expenses',accidents:'accidents',applications:'applications',documents:'documents',rota:'rota',payslips:'payslips',weeklyData:'weeklyData'};
-        const key=map[section]||section;
-        if(Array.isArray(parsed)){DB[key]=parsed;alert(`✅ Imported ${parsed.length} records into ${key}`);showPage(currentPage);}
-        else{alert('⚠ Expected a JSON array');}
-      }catch{alert('❌ Failed to parse JSON');}
-    };r.readAsText(e.target.files[0]);
-  };input.click();
+  input.onchange=e=>{const r=new FileReader();r.onload=ev=>{try{const p=JSON.parse(ev.target.result);if(Array.isArray(p)){DB[section]=p;alert(`✅ Imported ${p.length} records`);showPage(currentPage);}else alert('⚠ Expected a JSON array');}catch{alert('❌ Parse failed');}};r.readAsText(e.target.files[0]);};input.click();
 }
 
 // ── PDF PRINT ──────────────────────────────────────────────
 function printA4(html,title){
-  const companyName=BRAND.name||'WorkSphere HR';
+  const co=BRAND.name||'WorkSphere HR';
+  const logoHtml=BRAND.logoDataUrl?`<img src="${BRAND.logoDataUrl}" style="height:44px;object-fit:contain;border-radius:6px;margin-right:10px;vertical-align:middle"/>`:'';
   const w=window.open('','_blank');
-  w.document.write(`<!DOCTYPE html><html><head><title>${title} — ${companyName}</title>
-  <style>
-    body{font-family:Arial,sans-serif;font-size:11px;color:#1e293b;margin:0;padding:0}
-    .a4{width:595px;min-height:842px;padding:36px;margin:0 auto}
-    table{width:100%;border-collapse:collapse;margin-bottom:12px}
-    th{background:#eef2ff;color:#4f46e5;font-size:9px;text-transform:uppercase;padding:5px 7px;text-align:left}
-    td{padding:5px 7px;border-bottom:1px solid #e2e8f0;font-size:10px;color:#475569}
-    h2{font-size:13px;color:#334155;margin:14px 0 6px;border-bottom:1px solid #e2e8f0;padding-bottom:3px}
-    .top{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #6366f1;padding-bottom:10px;margin-bottom:16px}
-    .co-name{font-size:18px;font-weight:700;color:#6366f1}
-    .meta{font-size:9px;color:#94a3b8;text-align:right}
-    @media print{.no-print{display:none}}
-  </style></head><body>
+  w.document.write(`<!DOCTYPE html><html><head><title>${title} — ${co}</title>
+  <style>body{font-family:Arial,sans-serif;font-size:11px;color:#1e293b;margin:0;padding:0}
+  .a4{width:595px;min-height:842px;padding:36px;margin:0 auto}
+  table{width:100%;border-collapse:collapse;margin-bottom:12px}
+  th{background:#eef2ff;color:#4f46e5;font-size:9px;text-transform:uppercase;padding:5px 7px;text-align:left}
+  td{padding:5px 7px;border-bottom:1px solid #e2e8f0;font-size:10px;color:#475569}
+  h2{font-size:13px;color:#334155;margin:14px 0 6px;border-bottom:1px solid #e2e8f0;padding-bottom:3px}
+  .top{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #6366f1;padding-bottom:10px;margin-bottom:16px}
+  .co-name{font-size:18px;font-weight:700;color:#6366f1;display:flex;align-items:center}
+  .meta{font-size:9px;color:#94a3b8;text-align:right}
+  @media print{.no-print{display:none}}</style></head><body>
   <div class="a4">
-    <div class="top"><div><div class="co-name">${companyName}</div></div>
-    <div class="meta">Generated: ${new Date().toLocaleDateString('en-GB')}<br>${title}</div></div>
+    <div class="top">
+      <div class="co-name">${logoHtml}${co}</div>
+      <div class="meta">Generated: ${new Date().toLocaleDateString('en-GB')}<br>${title}</div>
+    </div>
     ${html}
-    <div style="margin-top:40px;border-top:1px solid #e2e8f0;padding-top:8px;text-align:center;font-size:9px;color:#94a3b8">${companyName} · Confidential · Auto-generated</div>
+    <div style="margin-top:40px;border-top:1px solid #e2e8f0;padding-top:8px;text-align:center;font-size:9px;color:#94a3b8">${co} · Confidential · Auto-generated</div>
   </div></body></html>`);
-  w.document.close();
-  setTimeout(()=>w.print(),500);
+  w.document.close();setTimeout(()=>w.print(),500);
 }
 
 // ── NAV ────────────────────────────────────────────────────
 let currentPage='dashboard';
 let charts={};
-
 function destroyCharts(){Object.values(charts).forEach(c=>{try{c.destroy()}catch{}});charts={};}
 
 function showPage(page){
-  currentPage=page;
-  destroyCharts();
-  const titles={dashboard:'HR Dashboard',staff:'Staff Management',rota:'Rota Management',attendance:'Attendance & Clock',leave:'Leave Management',payslips:'Payslips & Payroll',pension:'Pension Scheme',documents:'Document Storage',accidents:'Accident Reporting',applications:'Applications',accounts:'Accounts Dashboard',salesweekly:'Sales & Expenses Weekly',reports:'HR Reports',pdfexport:'PDF Export Centre',importexport:'Import / Export',settings:'Company Settings'};
+  currentPage=page;destroyCharts();
+  const titles={dashboard:'HR Dashboard',staff:'Staff Management',rota:'Rota Management',attendance:'Attendance & Clock',leave:'Leave Management',payslips:'Payslips & Payroll',pension:'Pension Scheme',documents:'Document Storage',accidents:'Accident Reporting',applications:'Applications',accounts:'Accounts Dashboard',salesweekly:'Sales & Expenses',reports:'HR Reports',pdfexport:'PDF Export Centre',importexport:'Import / Export',settings:'Company Settings'};
   document.getElementById('topbar-title').textContent=titles[page]||page;
   document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
-  const allItems=document.querySelectorAll('.nav-item');
-  const pageOrder={dashboard:0,staff:2,rota:3,attendance:4,leave:5,payslips:6,pension:7,documents:8,accidents:9,applications:10,accounts:12,salesweekly:13,reports:15,pdfexport:16,importexport:17,settings:18};
-  if(pageOrder[page]!==undefined && allItems[pageOrder[page]]) allItems[pageOrder[page]].classList.add('active');
+  const order={dashboard:0,staff:2,rota:3,attendance:4,leave:5,payslips:6,pension:7,documents:8,accidents:9,applications:10,accounts:12,salesweekly:13,reports:15,pdfexport:16,importexport:17,settings:18};
+  const items=document.querySelectorAll('.nav-item');
+  if(order[page]!==undefined&&items[order[page]])items[order[page]].classList.add('active');
   document.getElementById('content-area').innerHTML=renderPage(page);
   initCharts(page);
 }
 
 function renderPage(p){
-  if(p==='dashboard') return renderDashboard();
-  if(p==='staff') return renderStaff();
-  if(p==='rota') return renderRota();
-  if(p==='attendance') return renderAttendance();
-  if(p==='leave') return renderLeave();
-  if(p==='payslips') return renderPayslips();
-  if(p==='pension') return renderPension();
-  if(p==='documents') return renderDocuments();
-  if(p==='accidents') return renderAccidents();
-  if(p==='applications') return renderApplications();
-  if(p==='accounts') return renderAccounts();
-  if(p==='salesweekly') return renderSalesWeekly();
-  if(p==='reports') return renderReports();
-  if(p==='pdfexport') return renderPDFExport();
-  if(p==='importexport') return renderImportExport();
-  if(p==='settings') return renderSettings();
+  if(p==='dashboard')return renderDashboard();
+  if(p==='staff')return renderStaff();
+  if(p==='rota')return renderRota();
+  if(p==='attendance')return renderAttendance();
+  if(p==='leave')return renderLeave();
+  if(p==='payslips')return renderPayslips();
+  if(p==='pension')return renderPension();
+  if(p==='documents')return renderDocuments();
+  if(p==='accidents')return renderAccidents();
+  if(p==='applications')return renderApplications();
+  if(p==='accounts')return renderAccounts();
+  if(p==='salesweekly')return renderSalesWeekly();
+  if(p==='reports')return renderReports();
+  if(p==='pdfexport')return renderPDFExport();
+  if(p==='importexport')return renderImportExport();
+  if(p==='settings')return renderSettings();
   return '<p>Coming soon</p>';
 }
 
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════
 // DASHBOARD
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════
 function renderDashboard(){
+  const todaySummary=DB.dailySummaries[DB.dailySummaries.length-1];
   return `
   <div class="stat-grid">
     <div class="stat-card bg-blue"><div class="sc-val">${DB.staff.length}</div><div class="sc-label">Total Staff</div></div>
     <div class="stat-card bg-green"><div class="sc-val">${DB.staff.filter(s=>s.status==='Active').length}</div><div class="sc-label">Active Staff</div></div>
     <div class="stat-card bg-amber"><div class="sc-val">${DB.leave.filter(l=>l.status==='Pending').length}</div><div class="sc-label">Pending Leave</div></div>
-    <div class="stat-card bg-red"><div class="sc-val">${DB.documents.filter(d=>d.expires!=='-').length}</div><div class="sc-label">Visa / Doc Alerts</div></div>
+    <div class="stat-card bg-red"><div class="sc-val">${DB.documents.filter(d=>d.expires!=='-').length}</div><div class="sc-label">Doc Alerts</div></div>
   </div>
-  <div class="qa-grid">
-    <div class="qa-card" onclick="showPage('staff')"><div class="qa-icon">👥</div><div class="qa-label">Staff Management</div></div>
-    <div class="qa-card" onclick="showPage('rota')"><div class="qa-icon">📅</div><div class="qa-label">Rota Management</div></div>
-    <div class="qa-card" onclick="showPage('leave')"><div class="qa-icon">🌴</div><div class="qa-label">Leave Requests</div></div>
-    <div class="qa-card" onclick="showPage('accounts')"><div class="qa-icon">💰</div><div class="qa-label">Accounts</div></div>
-  </div>
+  ${todaySummary?`<div class="panel" style="background:linear-gradient(135deg,#eef2ff,#f0fdfa);border-color:#c7d2fe">
+    <div class="panel-header"><div class="panel-title">📊 Latest Daily Summary — ${todaySummary.date}</div>
+    <button class="btn btn-outline btn-sm" onclick="showPage('salesweekly')">View All</button></div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+      <div style="background:white;border-radius:9px;padding:12px;text-align:center"><div style="font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:var(--green)">${fmt(todaySummary.totalSales)}</div><div style="font-size:11px;color:var(--text3)">Total Sales</div></div>
+      <div style="background:white;border-radius:9px;padding:12px;text-align:center"><div style="font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:var(--red)">${fmt(todaySummary.expenses)}</div><div style="font-size:11px;color:var(--text3)">Expenses</div></div>
+      <div style="background:white;border-radius:9px;padding:12px;text-align:center"><div style="font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:var(--accent)">${fmt(todaySummary.totalSales-todaySummary.expenses)}</div><div style="font-size:11px;color:var(--text3)">Net Profit</div></div>
+      <div style="background:white;border-radius:9px;padding:12px;text-align:center"><div style="font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:var(--amber)">${fmt(todaySummary.tillLeft)}</div><div style="font-size:11px;color:var(--text3)">Till Left</div></div>
+    </div>
+  </div>`:''}
   <div class="two-col">
     <div class="panel">
       <div class="panel-header"><div class="panel-title">Recent Staff</div><button class="btn btn-outline btn-sm" onclick="showPage('staff')">View all</button></div>
@@ -436,70 +409,47 @@ function renderDashboard(){
       </table>
     </div>
     <div class="panel">
-      <div class="panel-header"><div class="panel-title">Leave Requests</div><button class="btn btn-outline btn-sm" onclick="showPage('leave')">View all</button></div>
-      <table class="tbl"><tr><th>Name</th><th>Type</th><th>Status</th></tr>
-      ${DB.leave.map(l=>`<tr><td>${l.name}</td><td>${l.type}</td><td><span class="badge ${statusColor(l.status)}">${l.status}</span></td></tr>`).join('')}
-      </table>
-    </div>
-  </div>
-  <div class="two-col">
-    <div class="panel">
       <div class="panel-header"><div class="panel-title">Pending Items</div></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
         <div style="background:var(--amber-soft);border-radius:9px;padding:12px"><div style="font-size:20px;font-weight:700;color:var(--amber)">${DB.applications.length}</div><div style="font-size:11px;color:#92400e">Applications</div></div>
         <div style="background:var(--red-soft);border-radius:9px;padding:12px"><div style="font-size:20px;font-weight:700;color:var(--red)">${DB.accidents.filter(a=>a.status==='Open').length}</div><div style="font-size:11px;color:#991b1b">Open Accidents</div></div>
         <div style="background:var(--blue-soft);border-radius:9px;padding:12px"><div style="font-size:20px;font-weight:700;color:var(--blue)">${DB.invoices.filter(i=>i.status==='Outstanding').length}</div><div style="font-size:11px;color:#1e40af">Outstanding Inv.</div></div>
-        <div style="background:var(--green-soft);border-radius:9px;padding:12px"><div style="font-size:20px;font-weight:700;color:var(--green)">${fmt(DB.invoices.filter(i=>i.status==='Paid').reduce((a,b)=>a+b.amount,0))}</div><div style="font-size:11px;color:#065f46">Revenue</div></div>
+        <div style="background:var(--green-soft);border-radius:9px;padding:12px"><div style="font-size:20px;font-weight:700;color:var(--green)">${DB.dailySummaries.length}</div><div style="font-size:11px;color:#065f46">Day Summaries</div></div>
       </div>
-    </div>
-    <div class="panel">
-      <div class="panel-header"><div class="panel-title">Today's Attendance</div></div>
-      <table class="tbl"><tr><th>Name</th><th>In</th><th>Status</th></tr>
-      ${DB.attendance.map(a=>`<tr><td>${a.name}</td><td>${a.clockIn}</td><td><span class="badge ${statusColor(a.status)}">${a.status}</span></td></tr>`).join('')}
-      </table>
     </div>
   </div>`;
 }
 
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════
 // STAFF
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════
 function renderStaff(){
   return `${ioBar('staff')}
   <div class="panel-header" style="margin-bottom:14px"><div></div><button class="btn btn-primary" onclick="addStaffModal()">+ Add Staff</button></div>
-  <div class="panel">
-    <table class="tbl">
-      <tr><th>Name</th><th>Role</th><th>Dept</th><th>Contract</th><th>Salary</th><th>Start Date</th><th>Status</th><th>Actions</th></tr>
-      ${DB.staff.map(s=>`<tr>
-        <td><strong>${s.name}</strong><br><span style="font-size:11px;color:var(--text3)">${s.email}</span></td>
-        <td>${s.role}</td><td>${s.dept}</td><td>${s.contract}</td><td>${fmt(s.salary)}</td><td>${s.startDate}</td>
-        <td><span class="badge ${statusColor(s.status)}">${s.status}</span></td>
-        <td class="btn-group">
-          <button class="btn btn-outline btn-sm" onclick="viewStaff(${s.id})">View</button>
-          <button class="btn btn-danger btn-sm" onclick="deleteStaff(${s.id})">Delete</button>
-        </td>
-      </tr>`).join('')}
-    </table>
-  </div>`;
+  <div class="panel"><table class="tbl">
+    <tr><th>Name</th><th>Role</th><th>Dept</th><th>Contract</th><th>Salary</th><th>Start</th><th>Status</th><th>Actions</th></tr>
+    ${DB.staff.map(s=>`<tr>
+      <td><strong>${s.name}</strong><br><span style="font-size:11px;color:var(--text3)">${s.email}</span></td>
+      <td>${s.role}</td><td>${s.dept}</td><td>${s.contract}</td><td>${fmt(s.salary)}</td><td>${s.startDate}</td>
+      <td><span class="badge ${statusColor(s.status)}">${s.status}</span></td>
+      <td class="btn-group"><button class="btn btn-outline btn-sm" onclick="viewStaff(${s.id})">View</button><button class="btn btn-danger btn-sm" onclick="deleteStaff(${s.id})">Delete</button></td>
+    </tr>`).join('')}
+  </table></div>`;
 }
 function addStaffModal(){
   openModal(`<div class="modal-title">Add New Staff Member</div>
   <div class="form-row"><div class="form-group"><label class="form-label">Full Name</label><input class="form-input" id="s-name" placeholder="Jane Smith"/></div>
   <div class="form-group"><label class="form-label">Role / Job Title</label><input class="form-input" id="s-role" placeholder="e.g. Sales Manager"/></div></div>
   <div class="form-row"><div class="form-group"><label class="form-label">Department</label><select class="form-input" id="s-dept"><option>HR</option><option>Tech</option><option>Sales</option><option>Finance</option><option>Operations</option><option>Marketing</option></select></div>
-  <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="s-email" type="email" placeholder="email@company.com"/></div></div>
-  <div class="form-row"><div class="form-group"><label class="form-label">Phone</label><input class="form-input" id="s-phone" placeholder="07700000000"/></div>
+  <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="s-email" type="email"/></div></div>
+  <div class="form-row"><div class="form-group"><label class="form-label">Phone</label><input class="form-input" id="s-phone"/></div>
   <div class="form-group"><label class="form-label">Annual Salary (£)</label><input class="form-input" id="s-salary" type="number" placeholder="30000"/></div></div>
   <div class="form-row"><div class="form-group"><label class="form-label">Contract Type</label><select class="form-input" id="s-contract"><option>Full-time</option><option>Part-time</option><option>Contractor</option><option>Zero-hours</option></select></div>
   <div class="form-group"><label class="form-label">Start Date</label><input class="form-input" id="s-start" type="date"/></div></div>
-  <div class="btn-group" style="margin-top:8px">
-    <button class="btn btn-primary" onclick="saveStaff()">Save Staff Member</button>
-    <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
-  </div>`);
+  <div class="btn-group"><button class="btn btn-primary" onclick="saveStaff()">Save</button><button class="btn btn-outline" onclick="closeModal()">Cancel</button></div>`);
 }
 function saveStaff(){
-  const name=document.getElementById('s-name').value.trim();
-  if(!name){alert('Please enter a name');return;}
+  const name=document.getElementById('s-name').value.trim();if(!name){alert('Enter a name');return;}
   DB.staff.push({id:Date.now(),name,role:document.getElementById('s-role').value,dept:document.getElementById('s-dept').value,
     email:document.getElementById('s-email').value,phone:document.getElementById('s-phone').value,status:'Active',
     contract:document.getElementById('s-contract').value,salary:parseFloat(document.getElementById('s-salary').value)||0,
@@ -509,28 +459,22 @@ function saveStaff(){
 function viewStaff(id){
   const s=DB.staff.find(x=>x.id===id);
   openModal(`<div class="modal-title">${s.name}</div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
     ${[['Role',s.role],['Department',s.dept],['Email',s.email],['Phone',s.phone||'-'],['Salary',fmt(s.salary)],['Contract',s.contract],['Start Date',s.startDate],['Status',`<span class="badge ${statusColor(s.status)}">${s.status}</span>`]].map(([l,v])=>`<div><div class="form-label">${l}</div><div style="margin-top:3px">${v}</div></div>`).join('')}
-  </div>
-  <button class="btn btn-outline" onclick="closeModal()">Close</button>`);
+  </div><button class="btn btn-outline" onclick="closeModal()">Close</button>`);
 }
 function deleteStaff(id){if(confirm('Remove this staff member?')){DB.staff=DB.staff.filter(s=>s.id!==id);showPage('staff');}}
 
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════
 // ROTA
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════
 function renderRota(){
-  const days=['mon','tue','wed','thu','fri','sat','sun'];
-  const dl=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-  return `${ioBar('rota')}
-  <div class="panel">
-    <div class="panel-header"><div class="panel-title">Weekly Rota — w/c 9 March 2026</div>
-    <button class="btn btn-success btn-sm" onclick="printRotaPDF()">🖨 Export PDF</button></div>
-    <table class="tbl">
-      <tr><th>Staff</th>${dl.map(d=>`<th>${d}</th>`).join('')}</tr>
-      ${DB.rota.map(r=>`<tr><td><strong>${r.name}</strong></td>${days.map(d=>`<td><span style="font-size:12px;${r[d]==='OFF'?'color:var(--text3)':r[d]==='-'?'color:var(--border)':'color:var(--green)'}">${r[d]}</span></td>`).join('')}</tr>`).join('')}
-    </table>
-  </div>`;
+  const days=['mon','tue','wed','thu','fri','sat','sun'],dl=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  return `${ioBar('rota')}<div class="panel">
+    <div class="panel-header"><div class="panel-title">Weekly Rota</div><button class="btn btn-success btn-sm" onclick="printRotaPDF()">🖨 Export PDF</button></div>
+    <table class="tbl"><tr><th>Staff</th>${dl.map(d=>`<th>${d}</th>`).join('')}</tr>
+    ${DB.rota.map(r=>`<tr><td><strong>${r.name}</strong></td>${days.map(d=>`<td><span style="font-size:12px;color:${r[d]==='OFF'?'var(--text3)':r[d]==='-'?'var(--border)':'var(--green)'}">${r[d]}</span></td>`).join('')}</tr>`).join('')}
+    </table></div>`;
 }
 function printRotaPDF(){
   const days=['mon','tue','wed','thu','fri','sat','sun'];
@@ -538,99 +482,72 @@ function printRotaPDF(){
   ${DB.rota.map(r=>`<tr><td>${r.name}</td>${days.map(d=>`<td>${r[d]}</td>`).join('')}</tr>`).join('')}</table>`,'Rota Schedule');
 }
 
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════
 // ATTENDANCE
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════
 function renderAttendance(){
-  return `${ioBar('attendance')}
-  <div class="panel">
-    <div class="panel-header"><div class="panel-title">Today's Attendance</div>
-    <button class="btn btn-primary btn-sm" onclick="clockInModal()">+ Clock In/Out</button></div>
-    <table class="tbl">
-      <tr><th>Staff</th><th>Clock In</th><th>Clock Out</th><th>Hours</th><th>Status</th></tr>
-      ${DB.attendance.map(a=>`<tr><td>${a.name}</td><td>${a.clockIn}</td><td>${a.clockOut}</td>
-      <td>${a.hours>0?a.hours+'h':'-'}</td><td><span class="badge ${statusColor(a.status)}">${a.status}</span></td></tr>`).join('')}
-    </table>
-  </div>`;
+  return `${ioBar('attendance')}<div class="panel">
+    <div class="panel-header"><div class="panel-title">Today's Attendance</div><button class="btn btn-primary btn-sm" onclick="clockInModal()">+ Clock In/Out</button></div>
+    <table class="tbl"><tr><th>Staff</th><th>Clock In</th><th>Clock Out</th><th>Hours</th><th>Status</th></tr>
+    ${DB.attendance.map(a=>`<tr><td>${a.name}</td><td>${a.clockIn}</td><td>${a.clockOut}</td><td>${a.hours>0?a.hours+'h':'-'}</td><td><span class="badge ${statusColor(a.status)}">${a.status}</span></td></tr>`).join('')}
+    </table></div>`;
 }
 function clockInModal(){
   openModal(`<div class="modal-title">Clock In / Out</div>
-  <div class="form-group" style="margin-bottom:11px"><label class="form-label">Select Staff</label>
-  <select class="form-input" id="ci-staff">${DB.staff.map(s=>`<option>${s.name}</option>`).join('')}</select></div>
-  <div class="form-row">
-    <div class="form-group"><label class="form-label">Clock In</label><input class="form-input" id="ci-in" type="time" value="${new Date().toTimeString().slice(0,5)}"/></div>
-    <div class="form-group"><label class="form-label">Clock Out</label><input class="form-input" id="ci-out" type="time"/></div>
-  </div>
-  <div class="btn-group" style="margin-top:8px">
-    <button class="btn btn-primary" onclick="saveClockIn()">Save</button>
-    <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
-  </div>`);
+  <div class="form-group" style="margin-bottom:11px"><label class="form-label">Select Staff</label><select class="form-input" id="ci-staff">${DB.staff.map(s=>`<option>${s.name}</option>`).join('')}</select></div>
+  <div class="form-row"><div class="form-group"><label class="form-label">Clock In</label><input class="form-input" id="ci-in" type="time" value="${new Date().toTimeString().slice(0,5)}"/></div>
+  <div class="form-group"><label class="form-label">Clock Out</label><input class="form-input" id="ci-out" type="time"/></div></div>
+  <div class="btn-group"><button class="btn btn-primary" onclick="saveClockIn()">Save</button><button class="btn btn-outline" onclick="closeModal()">Cancel</button></div>`);
 }
 function saveClockIn(){
-  const name=document.getElementById('ci-staff').value;
-  const inT=document.getElementById('ci-in').value;
-  const outT=document.getElementById('ci-out').value;
+  const name=document.getElementById('ci-staff').value,inT=document.getElementById('ci-in').value,outT=document.getElementById('ci-out').value;
   const ex=DB.attendance.find(a=>a.name===name);
   if(ex){ex.clockIn=inT;ex.clockOut=outT||'-';ex.status='Present';}
   else DB.attendance.push({id:Date.now(),name,date:new Date().toISOString().split('T')[0],clockIn:inT,clockOut:outT||'-',hours:0,status:'Present'});
   closeModal();showPage('attendance');
 }
 
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════
 // LEAVE
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════
 function renderLeave(){
   return `${ioBar('leave')}
   <div class="panel-header" style="margin-bottom:14px"><div></div><button class="btn btn-primary" onclick="addLeaveModal()">+ Request Leave</button></div>
-  <div class="panel">
-    <table class="tbl">
-      <tr><th>Staff</th><th>Type</th><th>From</th><th>To</th><th>Days</th><th>Status</th><th>Actions</th></tr>
-      ${DB.leave.map(l=>`<tr><td>${l.name}</td><td>${l.type}</td><td>${l.from}</td><td>${l.to}</td><td>${l.days}</td>
-      <td><span class="badge ${statusColor(l.status)}">${l.status}</span></td>
-      <td class="btn-group">${l.status==='Pending'?`<button class="btn btn-success btn-sm" onclick="approveLeave(${l.id})">Approve</button><button class="btn btn-danger btn-sm" onclick="rejectLeave(${l.id})">Reject</button>`:'—'}</td></tr>`).join('')}
-    </table>
-  </div>`;
+  <div class="panel"><table class="tbl"><tr><th>Staff</th><th>Type</th><th>From</th><th>To</th><th>Days</th><th>Status</th><th>Actions</th></tr>
+  ${DB.leave.map(l=>`<tr><td>${l.name}</td><td>${l.type}</td><td>${l.from}</td><td>${l.to}</td><td>${l.days}</td>
+  <td><span class="badge ${statusColor(l.status)}">${l.status}</span></td>
+  <td class="btn-group">${l.status==='Pending'?`<button class="btn btn-success btn-sm" onclick="approveLeave(${l.id})">Approve</button><button class="btn btn-danger btn-sm" onclick="rejectLeave(${l.id})">Reject</button>`:'—'}</td></tr>`).join('')}
+  </table></div>`;
 }
 function addLeaveModal(){
   openModal(`<div class="modal-title">Request Leave</div>
-  <div class="form-group" style="margin-bottom:11px"><label class="form-label">Staff Member</label>
-  <select class="form-input" id="lv-staff">${DB.staff.map(s=>`<option>${s.name}</option>`).join('')}</select></div>
-  <div class="form-row">
-    <div class="form-group"><label class="form-label">Leave Type</label><select class="form-input" id="lv-type"><option>Annual</option><option>Sick</option><option>Maternity</option><option>Paternity</option><option>Unpaid</option><option>Compassionate</option></select></div>
-    <div class="form-group"><label class="form-label">Number of Days</label><input class="form-input" id="lv-days" type="number" value="1" min="1"/></div>
-  </div>
-  <div class="form-row">
-    <div class="form-group"><label class="form-label">From</label><input class="form-input" id="lv-from" type="date"/></div>
-    <div class="form-group"><label class="form-label">To</label><input class="form-input" id="lv-to" type="date"/></div>
-  </div>
-  <div class="btn-group" style="margin-top:8px">
-    <button class="btn btn-primary" onclick="saveLeave()">Submit Request</button>
-    <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
-  </div>`);
+  <div class="form-group" style="margin-bottom:11px"><label class="form-label">Staff Member</label><select class="form-input" id="lv-staff">${DB.staff.map(s=>`<option>${s.name}</option>`).join('')}</select></div>
+  <div class="form-row"><div class="form-group"><label class="form-label">Leave Type</label><select class="form-input" id="lv-type"><option>Annual</option><option>Sick</option><option>Maternity</option><option>Paternity</option><option>Unpaid</option><option>Compassionate</option></select></div>
+  <div class="form-group"><label class="form-label">Days</label><input class="form-input" id="lv-days" type="number" value="1" min="1"/></div></div>
+  <div class="form-row"><div class="form-group"><label class="form-label">From</label><input class="form-input" id="lv-from" type="date"/></div>
+  <div class="form-group"><label class="form-label">To</label><input class="form-input" id="lv-to" type="date"/></div></div>
+  <div class="btn-group"><button class="btn btn-primary" onclick="saveLeave()">Submit</button><button class="btn btn-outline" onclick="closeModal()">Cancel</button></div>`);
 }
 function saveLeave(){
-  DB.leave.push({id:Date.now(),staffId:0,name:document.getElementById('lv-staff').value,
-    type:document.getElementById('lv-type').value,from:document.getElementById('lv-from').value,
-    to:document.getElementById('lv-to').value,days:parseInt(document.getElementById('lv-days').value)||1,status:'Pending'});
+  DB.leave.push({id:Date.now(),name:document.getElementById('lv-staff').value,type:document.getElementById('lv-type').value,
+    from:document.getElementById('lv-from').value,to:document.getElementById('lv-to').value,
+    days:parseInt(document.getElementById('lv-days').value)||1,status:'Pending'});
   closeModal();showPage('leave');
 }
 function approveLeave(id){DB.leave.find(l=>l.id===id).status='Approved';showPage('leave');}
 function rejectLeave(id){DB.leave.find(l=>l.id===id).status='Rejected';showPage('leave');}
 
-// ════════════════════════════════════════════════════════════
-// PAYSLIPS
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════
+// PAYSLIPS — with logo
+// ════════════════════════════════════════════════
 function renderPayslips(){
-  return `${ioBar('payslips')}
-  <div class="panel">
-    <div class="panel-header"><div class="panel-title">Payslips — March 2026</div>
-    <button class="btn btn-primary btn-sm" onclick="runPayroll()">▶ Run Payroll</button></div>
-    <table class="tbl">
-      <tr><th>Staff</th><th>Gross</th><th>Tax</th><th>NI</th><th>Pension</th><th>Net Pay</th><th>Status</th><th>PDF</th></tr>
-      ${DB.payslips.map(p=>`<tr><td>${p.staff}</td><td>${fmt(p.gross)}</td><td>${fmt(p.tax)}</td><td>${fmt(p.ni)}</td>
-      <td>${fmt(p.pension)}</td><td><strong>${fmt(p.net)}</strong></td>
-      <td><span class="badge ${statusColor(p.status)}">${p.status}</span></td>
-      <td><button class="btn btn-outline btn-sm" onclick="printPayslip('${p.staff}')">🖨 PDF</button></td></tr>`).join('')}
+  return `${ioBar('payslips')}<div class="panel">
+    <div class="panel-header"><div class="panel-title">Payslips — March 2026</div><button class="btn btn-primary btn-sm" onclick="runPayroll()">▶ Run Payroll</button></div>
+    <table class="tbl"><tr><th>Staff</th><th>Gross</th><th>Tax</th><th>NI</th><th>Pension</th><th>Net Pay</th><th>Status</th><th>PDF</th></tr>
+    ${DB.payslips.map(p=>`<tr><td>${p.staff}</td><td>${fmt(p.gross)}</td><td>${fmt(p.tax)}</td><td>${fmt(p.ni)}</td>
+    <td>${fmt(p.pension)}</td><td><strong>${fmt(p.net)}</strong></td>
+    <td><span class="badge ${statusColor(p.status)}">${p.status}</span></td>
+    <td><button class="btn btn-outline btn-sm" onclick="printPayslip('${p.staff}')">🖨 PDF</button></td></tr>`).join('')}
     </table>
     <div style="margin-top:13px;padding-top:13px;border-top:1px solid var(--border);display:flex;gap:22px">
       <div><span style="font-size:11px;color:var(--text3)">Total Gross</span><div style="font-weight:600">${fmt(DB.payslips.reduce((a,b)=>a+b.gross,0))}</div></div>
@@ -639,197 +556,170 @@ function renderPayslips(){
     </div>
   </div>`;
 }
-function runPayroll(){alert('✅ Payroll run complete. All payslips processed.');}
+function runPayroll(){alert('✅ Payroll run complete.');}
 function printPayslip(name){
   const p=DB.payslips.find(x=>x.staff===name);
-  printA4(`<h2>Payslip — ${p.period}</h2><p style="margin-bottom:10px">Employee: <strong>${p.staff}</strong></p>
-  <table><tr><th>Description</th><th>Amount</th></tr>
-  <tr><td>Gross Pay</td><td>${fmt(p.gross)}</td></tr>
-  <tr><td>Income Tax (PAYE)</td><td>-${fmt(p.tax)}</td></tr>
-  <tr><td>National Insurance</td><td>-${fmt(p.ni)}</td></tr>
-  <tr><td>Pension (Employee)</td><td>-${fmt(p.pension)}</td></tr>
-  <tr><td><strong>Net Pay</strong></td><td><strong>${fmt(p.net)}</strong></td></tr></table>`,`Payslip — ${name}`);
+  const co=BRAND.name||'WorkSphere HR';
+  const logoHtml=BRAND.logoDataUrl?`<img src="${BRAND.logoDataUrl}" style="height:52px;object-fit:contain;border-radius:7px;margin-bottom:4px"/><br>`:'';
+  const w=window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html><head><title>Payslip — ${name}</title>
+  <style>body{font-family:Arial,sans-serif;font-size:11px;color:#1e293b;margin:0}
+  .a4{width:595px;min-height:842px;padding:40px;margin:0 auto}
+  table{width:100%;border-collapse:collapse;margin-bottom:14px}
+  th{background:#eef2ff;color:#4f46e5;font-size:9px;text-transform:uppercase;padding:6px 8px;text-align:left}
+  td{padding:6px 8px;border-bottom:1px solid #e2e8f0;font-size:11px;color:#475569}
+  .header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #6366f1;padding-bottom:14px;margin-bottom:20px}
+  .co-block{display:flex;flex-direction:column}
+  .co-name{font-size:17px;font-weight:700;color:#6366f1;margin-top:4px}
+  .pay-badge{background:#eef2ff;color:#4f46e5;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:600}
+  .emp-box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px;margin-bottom:16px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .field-label{font-size:9px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px}
+  .field-val{font-size:11px;color:#1e293b;font-weight:500;margin-top:1px}
+  .net-box{background:#10b981;color:white;border-radius:10px;padding:14px;text-align:center;margin-top:12px}
+  .net-label{font-size:11px;opacity:0.85}
+  .net-val{font-size:24px;font-weight:700;margin-top:4px}
+  .footer{margin-top:50px;border-top:1px solid #e2e8f0;padding-top:10px;text-align:center;font-size:9px;color:#94a3b8}
+  </style></head><body><div class="a4">
+  <div class="header">
+    <div class="co-block">
+      ${logoHtml}
+      <div class="co-name">${co}</div>
+      <div style="font-size:10px;color:#64748b;margin-top:2px">Official Payslip Document</div>
+    </div>
+    <div style="text-align:right">
+      <div class="pay-badge">PAYSLIP</div>
+      <div style="font-size:10px;color:#64748b;margin-top:8px">Period: ${p.period}</div>
+      <div style="font-size:10px;color:#64748b">Generated: ${new Date().toLocaleDateString('en-GB')}</div>
+    </div>
+  </div>
+  <div class="emp-box">
+    <div><div class="field-label">Employee Name</div><div class="field-val">${p.staff}</div></div>
+    <div><div class="field-label">Pay Period</div><div class="field-val">${p.period}</div></div>
+    <div><div class="field-label">Department</div><div class="field-val">${DB.staff.find(s=>s.name===p.staff)?.dept||'—'}</div></div>
+    <div><div class="field-label">Employment Type</div><div class="field-val">${DB.staff.find(s=>s.name===p.staff)?.contract||'—'}</div></div>
+  </div>
+  <table>
+    <tr><th>Description</th><th>Amount</th></tr>
+    <tr><td>Gross Pay</td><td><strong>${fmt(p.gross)}</strong></td></tr>
+    <tr><td style="color:#ef4444">Income Tax (PAYE)</td><td style="color:#ef4444">-${fmt(p.tax)}</td></tr>
+    <tr><td style="color:#ef4444">National Insurance</td><td style="color:#ef4444">-${fmt(p.ni)}</td></tr>
+    <tr><td style="color:#6366f1">Pension Contribution</td><td style="color:#6366f1">-${fmt(p.pension)}</td></tr>
+  </table>
+  <div class="net-box"><div class="net-label">Net Pay (Take Home)</div><div class="net-val">${fmt(p.net)}</div></div>
+  <div class="footer">${co} · This is an official payslip · ${new Date().toLocaleDateString('en-GB')}</div>
+  </div></body></html>`);
+  w.document.close();setTimeout(()=>w.print(),500);
 }
 
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════
 // PENSION
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════
 function renderPension(){
-  return `${ioBar('payslips')}
-  <div class="panel">
+  return `${ioBar('payslips')}<div class="panel">
     <div class="panel-header"><div class="panel-title">Auto-Enrolment Status</div></div>
-    <table class="tbl">
-      <tr><th>Staff</th><th>Employee %</th><th>Employer %</th><th>Monthly Contribution</th><th>Provider</th><th>Status</th></tr>
-      ${DB.payslips.map(p=>`<tr><td>${p.staff}</td><td>4%</td><td>3%</td><td>${fmt(p.pension)}</td><td>NEST</td>
-      <td><span class="badge badge-green">Enrolled</span></td></tr>`).join('')}
-    </table>
-  </div>`;
+    <table class="tbl"><tr><th>Staff</th><th>Employee %</th><th>Employer %</th><th>Monthly</th><th>Provider</th><th>Status</th></tr>
+    ${DB.payslips.map(p=>`<tr><td>${p.staff}</td><td>4%</td><td>3%</td><td>${fmt(p.pension)}</td><td>NEST</td><td><span class="badge badge-green">Enrolled</span></td></tr>`).join('')}
+    </table></div>`;
 }
 
-// ════════════════════════════════════════════════════════════
-// DOCUMENTS — with real file upload (PDF, images, all formats)
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════
+// DOCUMENTS — full file upload
+// ════════════════════════════════════════════════
+let _pendingFile={name:'',dataUrl:'',size:'',fileType:''};
 function renderDocuments(){
   return `${ioBar('documents')}
-  <div class="panel-header" style="margin-bottom:14px"><div></div>
-  <button class="btn btn-primary" onclick="uploadDocModal()">+ Upload Document</button></div>
-  <div class="panel">
-    <table class="tbl">
-      <tr><th>Document</th><th>Type</th><th>Uploaded By</th><th>Date</th><th>Size</th><th>Expires</th><th>Actions</th></tr>
-      ${DB.documents.length===0?`<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:20px">No documents uploaded yet</td></tr>`:
-      DB.documents.map(d=>`<tr>
-        <td>
-          <div style="display:flex;align-items:center;gap:8px">
-            <div class="doc-thumb" style="background:${d.fileType==='pdf'?'#fef2f2':d.fileType==='image'?'#ecfdf5':'#eff6ff'}">
-              ${d.fileData&&d.fileType==='image'?`<img src="${d.fileData}" style="width:36px;height:36px;object-fit:cover;border-radius:7px"/>`:
-                `<span style="font-size:18px">${fileIcon(d.fileType)}</span>`}
-            </div>
-            <div>
-              <div style="font-weight:500;font-size:12.5px">${d.name}</div>
-              <div style="font-size:11px;color:var(--text3)">${d.fileType?d.fileType.toUpperCase():''}</div>
-            </div>
-          </div>
-        </td>
-        <td><span class="badge badge-blue">${d.type}</span></td>
-        <td>${d.uploadedBy}</td>
-        <td>${d.date}</td>
-        <td style="font-size:11.5px;color:var(--text3)">${d.fileSize||'-'}</td>
-        <td>${d.expires!=='-'?`<span style="color:var(--amber);font-weight:500">${d.expires}</span>`:'-'}</td>
-        <td class="btn-group">
-          ${d.fileData?`<button class="btn btn-outline btn-sm" onclick="previewDoc(${d.id})">👁 View</button>`:''}
-          <button class="btn btn-danger btn-sm" onclick="deleteDoc(${d.id})">Delete</button>
-        </td>
-      </tr>`).join('')}
-    </table>
-  </div>`;
+  <div class="panel-header" style="margin-bottom:14px"><div></div><button class="btn btn-primary" onclick="uploadDocModal()">+ Upload Document</button></div>
+  <div class="panel"><table class="tbl"><tr><th>Document</th><th>Type</th><th>Uploaded By</th><th>Date</th><th>Size</th><th>Expires</th><th>Actions</th></tr>
+  ${DB.documents.length===0?`<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:20px">No documents yet</td></tr>`:
+  DB.documents.map(d=>`<tr>
+    <td><div style="display:flex;align-items:center;gap:8px">
+      <div class="doc-thumb" style="background:${d.fileType==='pdf'?'#fef2f2':d.fileType==='image'?'#ecfdf5':'#eff6ff'}">
+        ${d.fileData&&d.fileType==='image'?`<img src="${d.fileData}"/>`:
+          `<span style="font-size:18px">${fileIcon(d.fileType)}</span>`}
+      </div>
+      <div><div style="font-weight:500;font-size:12.5px">${d.name}</div><div style="font-size:11px;color:var(--text3)">${d.fileType?d.fileType.toUpperCase():''}</div></div>
+    </div></td>
+    <td><span class="badge badge-blue">${d.type}</span></td>
+    <td>${d.uploadedBy}</td><td>${d.date}</td><td style="font-size:11.5px;color:var(--text3)">${d.fileSize||'-'}</td>
+    <td>${d.expires!=='-'?`<span style="color:var(--amber);font-weight:500">${d.expires}</span>`:'-'}</td>
+    <td class="btn-group">${d.fileData?`<button class="btn btn-outline btn-sm" onclick="previewDoc(${d.id})">👁 View</button>`:''}
+    <button class="btn btn-danger btn-sm" onclick="deleteDoc(${d.id})">Delete</button></td>
+  </tr>`).join('')}
+  </table></div>`;
 }
-
 function uploadDocModal(){
+  _pendingFile={name:'',dataUrl:'',size:'',fileType:''};
   openModal(`<div class="modal-title">Upload Document</div>
-  <div class="file-drop" id="file-drop-zone" onclick="document.getElementById('file-real-input').click()">
+  <div class="file-drop" id="fdz" onclick="document.getElementById('fri').click()">
     <div class="file-drop-icon">📁</div>
-    <div class="file-drop-text">Click to browse or drag & drop a file here</div>
-    <div class="file-drop-sub">Supports: PDF, JPG, PNG, GIF, WEBP, BMP, SVG, TIFF, HEIC, DOC, DOCX and more</div>
-    <div id="file-chosen-name" style="margin-top:8px;font-size:12px;color:var(--accent);font-weight:500"></div>
+    <div class="file-drop-text">Click to browse or drag & drop</div>
+    <div class="file-drop-sub">PDF, JPG, PNG, GIF, WEBP, BMP, SVG, TIFF, HEIC, DOC, DOCX and more</div>
+    <div id="fn" style="margin-top:8px;font-size:12px;color:var(--accent);font-weight:500"></div>
   </div>
-  <input type="file" id="file-real-input" accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.bmp,.svg,.tiff,.tif,.heic,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv" style="display:none" onchange="handleFileSelect(this)"/>
+  <input type="file" id="fri" accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.bmp,.svg,.tiff,.tif,.heic,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv" style="display:none" onchange="handleFileSelect(this)"/>
   <div class="form-row" style="margin-top:12px">
-    <div class="form-group"><label class="form-label">Document Name (optional override)</label><input class="form-input" id="d-name" placeholder="Leave blank to use filename"/></div>
-    <div class="form-group"><label class="form-label">Document Type</label><select class="form-input" id="d-type"><option>Policy</option><option>Contract</option><option>Visa</option><option>Certificate</option><option>Payslip</option><option>ID</option><option>Medical</option><option>Training</option><option>Other</option></select></div>
+    <div class="form-group"><label class="form-label">Document Name (optional)</label><input class="form-input" id="d-name" placeholder="Leave blank to use filename"/></div>
+    <div class="form-group"><label class="form-label">Type</label><select class="form-input" id="d-type"><option>Policy</option><option>Contract</option><option>Visa</option><option>Certificate</option><option>Payslip</option><option>ID</option><option>Medical</option><option>Training</option><option>Other</option></select></div>
   </div>
   <div class="form-row">
     <div class="form-group"><label class="form-label">Uploaded By</label><select class="form-input" id="d-by">${DB.staff.map(s=>`<option>${s.name}</option>`).join('')}</select></div>
     <div class="form-group"><label class="form-label">Expiry Date (optional)</label><input class="form-input" id="d-exp" type="date"/></div>
   </div>
-  <div class="btn-group" style="margin-top:8px">
-    <button class="btn btn-primary" onclick="saveDoc()">Upload Document</button>
-    <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
-  </div>`);
-
-  // drag & drop
+  <div class="btn-group"><button class="btn btn-primary" onclick="saveDoc()">Upload Document</button><button class="btn btn-outline" onclick="closeModal()">Cancel</button></div>`);
   setTimeout(()=>{
-    const zone=document.getElementById('file-drop-zone');
-    if(!zone) return;
-    zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('drag-over');});
-    zone.addEventListener('dragleave',()=>zone.classList.remove('drag-over'));
-    zone.addEventListener('drop',e=>{
-      e.preventDefault();zone.classList.remove('drag-over');
-      const f=e.dataTransfer.files[0];
-      if(f){document.getElementById('file-real-input').files;processFile(f);}
-    });
+    const z=document.getElementById('fdz');if(!z)return;
+    z.addEventListener('dragover',e=>{e.preventDefault();z.classList.add('drag-over');});
+    z.addEventListener('dragleave',()=>z.classList.remove('drag-over'));
+    z.addEventListener('drop',e=>{e.preventDefault();z.classList.remove('drag-over');const f=e.dataTransfer.files[0];if(f)processDocFile(f);});
   },100);
 }
-
-let _pendingFile={name:'',dataUrl:'',size:'',fileType:''};
-
-function handleFileSelect(input){
-  const f=input.files[0];
-  if(f) processFile(f);
-}
-
-function processFile(f){
+function handleFileSelect(input){const f=input.files[0];if(f)processDocFile(f);}
+function processDocFile(f){
   const reader=new FileReader();
   reader.onload=ev=>{
     _pendingFile={name:f.name,dataUrl:ev.target.result,size:formatBytes(f.size),fileType:getFileType(f.name)};
-    const el=document.getElementById('file-chosen-name');
-    if(el) el.textContent=`✅ Selected: ${f.name} (${formatBytes(f.size)})`;
-    const nameEl=document.getElementById('d-name');
-    if(nameEl && !nameEl.value) nameEl.placeholder=f.name;
-  };
-  reader.readAsDataURL(f);
+    const el=document.getElementById('fn');if(el)el.textContent=`✅ ${f.name} (${formatBytes(f.size)})`;
+    const ne=document.getElementById('d-name');if(ne&&!ne.value)ne.placeholder=f.name;
+  };reader.readAsDataURL(f);
 }
-
 function saveDoc(){
-  if(!_pendingFile.dataUrl){alert('Please select a file to upload');return;}
-  const customName=document.getElementById('d-name').value.trim();
-  DB.documents.push({
-    id:Date.now(),
-    name:customName||_pendingFile.name,
-    type:document.getElementById('d-type').value,
-    uploadedBy:document.getElementById('d-by').value,
-    date:new Date().toISOString().split('T')[0],
-    expires:document.getElementById('d-exp').value||'-',
-    fileType:_pendingFile.fileType,
-    fileData:_pendingFile.dataUrl,
-    fileSize:_pendingFile.size
-  });
-  _pendingFile={name:'',dataUrl:'',size:'',fileType:''};
-  closeModal();showPage('documents');
+  if(!_pendingFile.dataUrl){alert('Please select a file');return;}
+  DB.documents.push({id:Date.now(),name:document.getElementById('d-name').value.trim()||_pendingFile.name,
+    type:document.getElementById('d-type').value,uploadedBy:document.getElementById('d-by').value,
+    date:new Date().toISOString().split('T')[0],expires:document.getElementById('d-exp').value||'-',
+    fileType:_pendingFile.fileType,fileData:_pendingFile.dataUrl,fileSize:_pendingFile.size});
+  _pendingFile={};closeModal();showPage('documents');
 }
-
 function previewDoc(id){
-  const d=DB.documents.find(x=>x.id===id);
-  if(!d||!d.fileData){alert('No file preview available');return;}
+  const d=DB.documents.find(x=>x.id===id);if(!d||!d.fileData){alert('No preview available');return;}
   const w=window.open('','_blank');
-  if(d.fileType==='image'){
-    w.document.write(`<html><body style="margin:0;background:#111;display:flex;justify-content:center;align-items:center;min-height:100vh">
-    <img src="${d.fileData}" style="max-width:95vw;max-height:95vh;object-fit:contain;border-radius:8px"/></body></html>`);
-  } else {
-    w.document.write(`<html><head><title>${d.name}</title></head><body style="margin:0">
-    <iframe src="${d.fileData}" style="width:100vw;height:100vh;border:none"></iframe></body></html>`);
-  }
+  if(d.fileType==='image'){w.document.write(`<html><body style="margin:0;background:#111;display:flex;justify-content:center;align-items:center;min-height:100vh"><img src="${d.fileData}" style="max-width:95vw;max-height:95vh;object-fit:contain"/></body></html>`);}
+  else{w.document.write(`<html><head><title>${d.name}</title></head><body style="margin:0"><iframe src="${d.fileData}" style="width:100vw;height:100vh;border:none"></iframe></body></html>`);}
   w.document.close();
 }
+function deleteDoc(id){if(confirm('Delete this document?')){DB.documents=DB.documents.filter(d=>d.id!==id);showPage('documents');}}
 
-function deleteDoc(id){
-  if(confirm('Delete this document? This cannot be undone.')){
-    DB.documents=DB.documents.filter(d=>d.id!==id);showPage('documents');
-  }
-}
-
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════
 // ACCIDENTS
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════
 function renderAccidents(){
   return `${ioBar('accidents')}
-  <div class="panel-header" style="margin-bottom:14px"><div></div>
-  <button class="btn btn-danger" onclick="addAccidentModal()">+ Report Incident</button></div>
-  <div class="panel">
-    <table class="tbl">
-      <tr><th>Reporter</th><th>Date</th><th>Type</th><th>Location</th><th>Description</th><th>Status</th><th>Actions</th></tr>
-      ${DB.accidents.map(a=>`<tr><td>${a.reporter}</td><td>${a.date}</td><td>${a.type}</td><td>${a.location}</td>
-      <td style="max-width:180px;font-size:11.5px">${a.desc}</td>
-      <td><span class="badge ${a.status==='Open'?'badge-amber':'badge-green'}">${a.status}</span></td>
-      <td>${a.status==='Open'?`<button class="btn btn-success btn-sm" onclick="closeAccident(${a.id})">Close</button>`:'—'}</td></tr>`).join('')}
-    </table>
-  </div>`;
+  <div class="panel-header" style="margin-bottom:14px"><div></div><button class="btn btn-danger" onclick="addAccidentModal()">+ Report Incident</button></div>
+  <div class="panel"><table class="tbl"><tr><th>Reporter</th><th>Date</th><th>Type</th><th>Location</th><th>Description</th><th>Status</th><th></th></tr>
+  ${DB.accidents.map(a=>`<tr><td>${a.reporter}</td><td>${a.date}</td><td>${a.type}</td><td>${a.location}</td>
+  <td style="max-width:170px;font-size:11.5px">${a.desc}</td>
+  <td><span class="badge ${a.status==='Open'?'badge-amber':'badge-green'}">${a.status}</span></td>
+  <td>${a.status==='Open'?`<button class="btn btn-success btn-sm" onclick="closeAccident(${a.id})">Close</button>`:'—'}</td></tr>`).join('')}
+  </table></div>`;
 }
 function addAccidentModal(){
   openModal(`<div class="modal-title">Report Incident</div>
-  <div class="form-row">
-    <div class="form-group"><label class="form-label">Reporter</label><select class="form-input" id="ac-rep">${DB.staff.map(s=>`<option>${s.name}</option>`).join('')}</select></div>
-    <div class="form-group"><label class="form-label">Date</label><input class="form-input" id="ac-date" type="date" value="${new Date().toISOString().split('T')[0]}"/></div>
-  </div>
-  <div class="form-row">
-    <div class="form-group"><label class="form-label">Type</label><select class="form-input" id="ac-type"><option>Near Miss</option><option>Injury</option><option>Property Damage</option><option>RIDDOR</option><option>Fire</option></select></div>
-    <div class="form-group"><label class="form-label">Location</label><input class="form-input" id="ac-loc" placeholder="e.g. Office, Warehouse"/></div>
-  </div>
-  <div class="form-group" style="margin-bottom:11px"><label class="form-label">Description</label>
-  <textarea class="form-input" id="ac-desc" placeholder="Describe what happened, who was involved, any injuries or damage..."></textarea></div>
-  <div class="btn-group">
-    <button class="btn btn-danger" onclick="saveAccident()">Submit Report</button>
-    <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
-  </div>`);
+  <div class="form-row"><div class="form-group"><label class="form-label">Reporter</label><select class="form-input" id="ac-rep">${DB.staff.map(s=>`<option>${s.name}</option>`).join('')}</select></div>
+  <div class="form-group"><label class="form-label">Date</label><input class="form-input" id="ac-date" type="date" value="${new Date().toISOString().split('T')[0]}"/></div></div>
+  <div class="form-row"><div class="form-group"><label class="form-label">Type</label><select class="form-input" id="ac-type"><option>Near Miss</option><option>Injury</option><option>Property Damage</option><option>RIDDOR</option></select></div>
+  <div class="form-group"><label class="form-label">Location</label><input class="form-input" id="ac-loc" placeholder="e.g. Office"/></div></div>
+  <div class="form-group" style="margin-bottom:11px"><label class="form-label">Description</label><textarea class="form-input" id="ac-desc"></textarea></div>
+  <div class="btn-group"><button class="btn btn-danger" onclick="saveAccident()">Submit</button><button class="btn btn-outline" onclick="closeModal()">Cancel</button></div>`);
 }
 function saveAccident(){
   DB.accidents.push({id:Date.now(),reporter:document.getElementById('ac-rep').value,date:document.getElementById('ac-date').value,
@@ -839,53 +729,39 @@ function saveAccident(){
 }
 function closeAccident(id){DB.accidents.find(a=>a.id===id).status='Closed';showPage('accidents');}
 
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════
 // APPLICATIONS
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════
 function renderApplications(){
   const stages=['Applied','Interview','Offer','Hired','Rejected'];
   return `${ioBar('applications')}
-  <div class="panel-header" style="margin-bottom:14px"><div></div>
-  <button class="btn btn-primary" onclick="addAppModal()">+ Add Application</button></div>
-  <div class="panel">
-    <table class="tbl">
-      <tr><th>Applicant</th><th>Role Applied</th><th>Date</th><th>Stage</th><th>Rating</th><th>Move Stage</th></tr>
-      ${DB.applications.map(a=>`<tr>
-        <td><strong>${a.name}</strong></td><td>${a.role}</td><td>${a.date}</td>
-        <td><span class="badge ${stageColor(a.stage)}">${a.stage}</span></td>
-        <td style="color:var(--amber)">${'★'.repeat(a.rating)}${'☆'.repeat(5-a.rating)}</td>
-        <td><select class="form-input" style="padding:4px 7px;font-size:11.5px" onchange="updateStage(${a.id},this.value)">
-          ${stages.map(s=>`<option${s===a.stage?' selected':''}>${s}</option>`).join('')}</select></td>
-      </tr>`).join('')}
-    </table>
-  </div>`;
+  <div class="panel-header" style="margin-bottom:14px"><div></div><button class="btn btn-primary" onclick="addAppModal()">+ Add Application</button></div>
+  <div class="panel"><table class="tbl"><tr><th>Applicant</th><th>Role</th><th>Date</th><th>Stage</th><th>Rating</th><th>Move Stage</th></tr>
+  ${DB.applications.map(a=>`<tr><td><strong>${a.name}</strong></td><td>${a.role}</td><td>${a.date}</td>
+  <td><span class="badge ${stageColor(a.stage)}">${a.stage}</span></td>
+  <td style="color:var(--amber)">${'★'.repeat(a.rating)}${'☆'.repeat(5-a.rating)}</td>
+  <td><select class="form-input" style="padding:4px 7px;font-size:11.5px" onchange="updateStage(${a.id},this.value)">
+  ${stages.map(s=>`<option${s===a.stage?' selected':''}>${s}</option>`).join('')}</select></td></tr>`).join('')}
+  </table></div>`;
 }
 function updateStage(id,stage){DB.applications.find(a=>a.id===id).stage=stage;showPage('applications');}
 function addAppModal(){
   openModal(`<div class="modal-title">Add Application</div>
-  <div class="form-row">
-    <div class="form-group"><label class="form-label">Applicant Name</label><input class="form-input" id="ap-name" placeholder="Full name"/></div>
-    <div class="form-group"><label class="form-label">Role Applied For</label><input class="form-input" id="ap-role" placeholder="Position title"/></div>
-  </div>
-  <div class="form-row">
-    <div class="form-group"><label class="form-label">Application Date</label><input class="form-input" id="ap-date" type="date" value="${new Date().toISOString().split('T')[0]}"/></div>
-    <div class="form-group"><label class="form-label">Rating (1–5)</label><input class="form-input" id="ap-rating" type="number" min="1" max="5" value="3"/></div>
-  </div>
-  <div class="btn-group" style="margin-top:8px">
-    <button class="btn btn-primary" onclick="saveApp()">Save</button>
-    <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
-  </div>`);
+  <div class="form-row"><div class="form-group"><label class="form-label">Applicant Name</label><input class="form-input" id="ap-name"/></div>
+  <div class="form-group"><label class="form-label">Role Applied For</label><input class="form-input" id="ap-role"/></div></div>
+  <div class="form-row"><div class="form-group"><label class="form-label">Date</label><input class="form-input" id="ap-date" type="date" value="${new Date().toISOString().split('T')[0]}"/></div>
+  <div class="form-group"><label class="form-label">Rating (1-5)</label><input class="form-input" id="ap-rating" type="number" min="1" max="5" value="3"/></div></div>
+  <div class="btn-group"><button class="btn btn-primary" onclick="saveApp()">Save</button><button class="btn btn-outline" onclick="closeModal()">Cancel</button></div>`);
 }
 function saveApp(){
-  DB.applications.push({id:Date.now(),name:document.getElementById('ap-name').value,
-    role:document.getElementById('ap-role').value,date:document.getElementById('ap-date').value,
-    stage:'Applied',rating:parseInt(document.getElementById('ap-rating').value)||3});
+  DB.applications.push({id:Date.now(),name:document.getElementById('ap-name').value,role:document.getElementById('ap-role').value,
+    date:document.getElementById('ap-date').value,stage:'Applied',rating:parseInt(document.getElementById('ap-rating').value)||3});
   closeModal();showPage('applications');
 }
 
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════
 // ACCOUNTS
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════
 function renderAccounts(){
   const totalRev=DB.invoices.filter(i=>i.status==='Paid').reduce((a,b)=>a+b.amount,0);
   const outstanding=DB.invoices.filter(i=>i.status==='Outstanding').reduce((a,b)=>a+b.amount,0);
@@ -895,398 +771,566 @@ function renderAccounts(){
     <div class="stat-card bg-purple"><div class="sc-val">${fmt(totalRev)}</div><div class="sc-label">Revenue Collected</div></div>
     <div class="stat-card bg-indigo"><div class="sc-val">${fmt(outstanding)}</div><div class="sc-label">Outstanding</div></div>
     <div class="stat-card bg-teal"><div class="sc-val">${fmt(totalRev-totalExp)}</div><div class="sc-label">Net Cash Flow</div></div>
-    <div class="stat-card bg-navy"><div class="sc-val">${DB.invoices.length}</div><div class="sc-label">Total Invoices</div></div>
+    <div class="stat-card bg-navy"><div class="sc-val">${DB.invoices.length}</div><div class="sc-label">Invoices</div></div>
   </div>
   <div class="two-col">
-    <div class="panel">
-      <div class="panel-header"><div class="panel-title">Invoices</div><button class="btn btn-primary btn-sm" onclick="addInvoiceModal()">+ Create Invoice</button></div>
-      <table class="tbl">
-        <tr><th>ID</th><th>Client</th><th>Amount</th><th>Due</th><th>Status</th><th>PDF</th></tr>
-        ${DB.invoices.map(i=>`<tr><td>${i.id}</td><td>${i.client}</td><td>${fmt(i.amount)}</td><td>${i.due}</td>
-        <td><span class="badge ${statusColor(i.status)}">${i.status}</span></td>
-        <td><button class="btn btn-outline btn-sm" onclick="printInvoice('${i.id}')">🖨</button></td></tr>`).join('')}
-      </table>
-    </div>
-    <div class="panel">
-      <div class="panel-header"><div class="panel-title">Expenses</div><button class="btn btn-amber btn-sm" onclick="addExpenseModal()">+ Record Expense</button></div>
-      <table class="tbl">
-        <tr><th>Description</th><th>Category</th><th>Amount</th><th>Date</th><th>Status</th></tr>
-        ${DB.expenses.map(e=>`<tr><td>${e.desc}</td><td>${e.category}</td><td>${fmt(e.amount)}</td><td>${e.date}</td>
-        <td><span class="badge ${statusColor(e.status)}">${e.status}</span></td></tr>`).join('')}
-      </table>
-    </div>
+    <div class="panel"><div class="panel-header"><div class="panel-title">Invoices</div><button class="btn btn-primary btn-sm" onclick="addInvoiceModal()">+ Create Invoice</button></div>
+    <table class="tbl"><tr><th>ID</th><th>Client</th><th>Amount</th><th>Due</th><th>Status</th><th>PDF</th></tr>
+    ${DB.invoices.map(i=>`<tr><td>${i.id}</td><td>${i.client}</td><td>${fmt(i.amount)}</td><td>${i.due}</td>
+    <td><span class="badge ${statusColor(i.status)}">${i.status}</span></td>
+    <td><button class="btn btn-outline btn-sm" onclick="printInvoice('${i.id}')">🖨</button></td></tr>`).join('')}
+    </table></div>
+    <div class="panel"><div class="panel-header"><div class="panel-title">Expenses</div><button class="btn btn-amber btn-sm" onclick="addExpenseModal()">+ Record Expense</button></div>
+    <table class="tbl"><tr><th>Description</th><th>Category</th><th>Amount</th><th>Date</th><th>Status</th></tr>
+    ${DB.expenses.map(e=>`<tr><td>${e.desc}</td><td>${e.category}</td><td>${fmt(e.amount)}</td><td>${e.date}</td>
+    <td><span class="badge ${statusColor(e.status)}">${e.status}</span></td></tr>`).join('')}
+    </table></div>
   </div>`;
 }
 function addInvoiceModal(){
   openModal(`<div class="modal-title">Create Invoice</div>
-  <div class="form-row">
-    <div class="form-group"><label class="form-label">Client Name</label><input class="form-input" id="inv-client" placeholder="Client or company name"/></div>
-    <div class="form-group"><label class="form-label">Amount (£)</label><input class="form-input" id="inv-amt" type="number" placeholder="0.00" step="0.01"/></div>
-  </div>
-  <div class="form-row">
-    <div class="form-group"><label class="form-label">Invoice Date</label><input class="form-input" id="inv-date" type="date" value="${new Date().toISOString().split('T')[0]}"/></div>
-    <div class="form-group"><label class="form-label">Due Date</label><input class="form-input" id="inv-due" type="date"/></div>
-  </div>
-  <div class="form-group" style="margin-bottom:11px"><label class="form-label">Description / Notes</label>
-  <textarea class="form-input" id="inv-notes" placeholder="Services provided, reference number, etc."></textarea></div>
-  <div class="btn-group" style="margin-top:8px">
-    <button class="btn btn-primary" onclick="saveInvoice()">Create Invoice</button>
-    <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
-  </div>`);
+  <div class="form-row"><div class="form-group"><label class="form-label">Client Name</label><input class="form-input" id="inv-client"/></div>
+  <div class="form-group"><label class="form-label">Amount (£)</label><input class="form-input" id="inv-amt" type="number" step="0.01"/></div></div>
+  <div class="form-row"><div class="form-group"><label class="form-label">Invoice Date</label><input class="form-input" id="inv-date" type="date" value="${new Date().toISOString().split('T')[0]}"/></div>
+  <div class="form-group"><label class="form-label">Due Date</label><input class="form-input" id="inv-due" type="date"/></div></div>
+  <div class="form-group" style="margin-bottom:11px"><label class="form-label">Notes</label><textarea class="form-input" id="inv-notes"></textarea></div>
+  <div class="btn-group"><button class="btn btn-primary" onclick="saveInvoice()">Create Invoice</button><button class="btn btn-outline" onclick="closeModal()">Cancel</button></div>`);
 }
 function saveInvoice(){
   const id='INV-'+(DB.invoices.length+1).toString().padStart(3,'0');
-  DB.invoices.push({id,client:document.getElementById('inv-client').value,
-    amount:parseFloat(document.getElementById('inv-amt').value)||0,
-    status:'Draft',date:document.getElementById('inv-date').value,due:document.getElementById('inv-due').value,
-    notes:document.getElementById('inv-notes').value});
+  DB.invoices.push({id,client:document.getElementById('inv-client').value,amount:parseFloat(document.getElementById('inv-amt').value)||0,
+    status:'Draft',date:document.getElementById('inv-date').value,due:document.getElementById('inv-due').value,notes:document.getElementById('inv-notes').value});
   closeModal();showPage('accounts');
 }
-
-// ── EXPENSE MODAL — full manual input ──────────────────────
 function addExpenseModal(){
   openModal(`<div class="modal-title">Record Expense</div>
-  <div class="form-row">
-    <div class="form-group"><label class="form-label">Description</label><input class="form-input" id="ex-desc" placeholder="What was purchased or paid for"/></div>
-    <div class="form-group"><label class="form-label">Category</label>
-    <select class="form-input" id="ex-cat"><option>Operations</option><option>Tech</option><option>HR</option><option>Marketing</option><option>Travel</option><option>Equipment</option><option>Utilities</option><option>Rent</option><option>Insurance</option><option>Other</option></select></div>
-  </div>
-  <div class="form-row">
-    <div class="form-group"><label class="form-label">Amount (£)</label><input class="form-input" id="ex-amt" type="number" placeholder="0.00" step="0.01"/></div>
-    <div class="form-group"><label class="form-label">Date</label><input class="form-input" id="ex-date" type="date" value="${new Date().toISOString().split('T')[0]}"/></div>
-  </div>
-  <div class="form-row">
-    <div class="form-group"><label class="form-label">Paid By</label><select class="form-input" id="ex-paid">${DB.staff.map(s=>`<option>${s.name}</option>`).join('')}</select></div>
-    <div class="form-group"><label class="form-label">Receipt / Reference</label><input class="form-input" id="ex-ref" placeholder="Receipt no. or reference"/></div>
-  </div>
-  <div class="form-group" style="margin-bottom:11px"><label class="form-label">Notes</label>
-  <textarea class="form-input" id="ex-notes" placeholder="Additional details, supplier, purpose..."></textarea></div>
-  <div class="btn-group" style="margin-top:8px">
-    <button class="btn btn-amber" onclick="saveExpense()">Save Expense</button>
-    <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
-  </div>`);
+  <div class="form-row"><div class="form-group"><label class="form-label">Description</label><input class="form-input" id="ex-desc" placeholder="What was purchased"/></div>
+  <div class="form-group"><label class="form-label">Category</label><select class="form-input" id="ex-cat"><option>Operations</option><option>Tech</option><option>HR</option><option>Marketing</option><option>Travel</option><option>Equipment</option><option>Utilities</option><option>Rent</option><option>Insurance</option><option>Other</option></select></div></div>
+  <div class="form-row"><div class="form-group"><label class="form-label">Amount (£)</label><input class="form-input" id="ex-amt" type="number" step="0.01"/></div>
+  <div class="form-group"><label class="form-label">Date</label><input class="form-input" id="ex-date" type="date" value="${new Date().toISOString().split('T')[0]}"/></div></div>
+  <div class="form-row"><div class="form-group"><label class="form-label">Paid By</label><select class="form-input" id="ex-paid">${DB.staff.map(s=>`<option>${s.name}</option>`).join('')}</select></div>
+  <div class="form-group"><label class="form-label">Receipt / Reference</label><input class="form-input" id="ex-ref"/></div></div>
+  <div class="form-group" style="margin-bottom:11px"><label class="form-label">Notes</label><textarea class="form-input" id="ex-notes"></textarea></div>
+  <div class="btn-group"><button class="btn btn-amber" onclick="saveExpense()">Save Expense</button><button class="btn btn-outline" onclick="closeModal()">Cancel</button></div>`);
 }
 function saveExpense(){
-  const desc=document.getElementById('ex-desc').value.trim();
-  if(!desc){alert('Please enter a description');return;}
+  const desc=document.getElementById('ex-desc').value.trim();if(!desc){alert('Enter a description');return;}
   DB.expenses.push({id:Date.now(),desc,category:document.getElementById('ex-cat').value,
     amount:parseFloat(document.getElementById('ex-amt').value)||0,date:document.getElementById('ex-date').value,
     paidBy:document.getElementById('ex-paid').value,ref:document.getElementById('ex-ref').value,
     notes:document.getElementById('ex-notes').value,status:'Pending'});
   closeModal();showPage('accounts');
 }
-
 function printInvoice(id){
   const inv=DB.invoices.find(i=>i.id===id);
-  printA4(`<h2>Invoice ${inv.id}</h2>
-  <table><tr><th>Field</th><th>Detail</th></tr>
-  <tr><td>Client</td><td>${inv.client}</td></tr>
-  <tr><td>Invoice Date</td><td>${inv.date}</td></tr>
-  <tr><td>Due Date</td><td>${inv.due}</td></tr>
-  <tr><td>Amount</td><td>${fmt(inv.amount)}</td></tr>
-  <tr><td>Status</td><td>${inv.status}</td></tr>
-  ${inv.notes?`<tr><td>Notes</td><td>${inv.notes}</td></tr>`:''}
-  </table>`,`Invoice ${inv.id}`);
+  printA4(`<h2>Invoice ${inv.id}</h2><table><tr><th>Field</th><th>Detail</th></tr>
+  <tr><td>Client</td><td>${inv.client}</td></tr><tr><td>Invoice Date</td><td>${inv.date}</td></tr>
+  <tr><td>Due Date</td><td>${inv.due}</td></tr><tr><td>Amount</td><td>${fmt(inv.amount)}</td></tr>
+  <tr><td>Status</td><td>${inv.status}</td></tr>${inv.notes?`<tr><td>Notes</td><td>${inv.notes}</td></tr>`:''}</table>`,`Invoice ${inv.id}`);
 }
 
-// ════════════════════════════════════════════════════════════
-// SALES & EXPENSES WEEKLY — with full manual entry
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════
+// SALES & EXPENSES — weekly + daily summary + receipt scan + XLS import
+// ════════════════════════════════════════════════
 function renderSalesWeekly(){
   const totalSales=DB.weeklyData.reduce((a,b)=>a+b.sales,0);
   const totalExp=DB.weeklyData.reduce((a,b)=>a+b.expenses,0);
+  const totalDailySales=DB.dailySummaries.reduce((a,b)=>a+b.totalSales,0);
+  const totalDailyExp=DB.dailySummaries.reduce((a,b)=>a+b.expenses,0);
   return `
-  <div class="stat-grid" style="grid-template-columns:repeat(3,1fr)">
-    <div class="stat-card bg-green"><div class="sc-val">${fmt(totalSales)}</div><div class="sc-label">Total Sales</div></div>
-    <div class="stat-card bg-red"><div class="sc-val">${fmt(totalExp)}</div><div class="sc-label">Total Expenses</div></div>
-    <div class="stat-card bg-indigo"><div class="sc-val">${fmt(totalSales-totalExp)}</div><div class="sc-label">Net Profit</div></div>
+  <!-- TABS -->
+  <div class="tabs">
+    <div class="tab active" id="tab-weekly" onclick="switchSalesTab('weekly')">📅 Weekly Summary</div>
+    <div class="tab" id="tab-daily" onclick="switchSalesTab('daily')">📆 Daily Summary</div>
+    <div class="tab" id="tab-scan" onclick="switchSalesTab('scan')">📸 Scan Receipt</div>
+    <div class="tab" id="tab-xls" onclick="switchSalesTab('xls')">📥 Import XLS</div>
   </div>
 
-  <!-- MANUAL ENTRY PANEL -->
-  <div class="panel">
-    <div class="panel-header"><div class="panel-title">➕ Add Weekly Entry</div></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:11px;align-items:end">
-      <div class="form-group">
-        <label class="form-label">Week Label</label>
-        <input class="form-input" id="wk-week" placeholder="e.g. W4 Mar"/>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Sales Amount (£)</label>
-        <input class="form-input" id="wk-sales" type="number" placeholder="0.00" step="0.01"/>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Expenses Amount (£)</label>
-        <input class="form-input" id="wk-exp" type="number" placeholder="0.00" step="0.01"/>
-      </div>
-      <div>
-        <button class="btn btn-success" onclick="addWeeklyEntry()" style="width:100%;margin-top:1px">+ Add Week</button>
+  <!-- WEEKLY TAB -->
+  <div id="sales-tab-weekly">
+    <div class="stat-grid" style="grid-template-columns:repeat(3,1fr)">
+      <div class="stat-card bg-green"><div class="sc-val">${fmt(totalSales)}</div><div class="sc-label">Total Sales</div></div>
+      <div class="stat-card bg-red"><div class="sc-val">${fmt(totalExp)}</div><div class="sc-label">Total Expenses</div></div>
+      <div class="stat-card bg-indigo"><div class="sc-val">${fmt(totalSales-totalExp)}</div><div class="sc-label">Net Profit</div></div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><div class="panel-title">➕ Add Weekly Entry</div></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:11px;align-items:end">
+        <div class="form-group"><label class="form-label">Week Label</label><input class="form-input" id="wk-week" placeholder="e.g. W4 Mar"/></div>
+        <div class="form-group"><label class="form-label">Sales (£)</label><input class="form-input" id="wk-sales" type="number" step="0.01"/></div>
+        <div class="form-group"><label class="form-label">Expenses (£)</label><input class="form-input" id="wk-exp" type="number" step="0.01"/></div>
+        <button class="btn btn-success" onclick="addWeeklyEntry()" style="margin-bottom:1px">+ Add</button>
       </div>
     </div>
-    <div class="alert alert-info" style="margin-top:12px;margin-bottom:0">
-      💡 Enter a week label (e.g. "W4 Mar"), your total sales and total expenses for that week, then click Add Week. The charts update instantly.
+    <div class="two-col">
+      <div class="panel"><div class="panel-header"><div class="panel-title">Sales per Week</div><button class="btn btn-success btn-sm" onclick="printWeeklyReport()">🖨 PDF</button></div>
+      <div class="chart-wrap"><canvas id="sales-chart"></canvas></div></div>
+      <div class="panel"><div class="panel-header"><div class="panel-title">Expenses per Week</div></div>
+      <div class="chart-wrap"><canvas id="exp-chart"></canvas></div></div>
+    </div>
+    <div class="panel"><div class="panel-header"><div class="panel-title">Sales vs Expenses</div></div>
+    <div class="chart-wrap" style="height:230px"><canvas id="compare-chart"></canvas></div></div>
+    <div class="panel"><div class="panel-header"><div class="panel-title">Weekly Breakdown</div></div>
+    <table class="tbl"><tr><th>Week</th><th>Sales</th><th>Expenses</th><th>Profit</th><th>Margin</th><th></th></tr>
+    ${DB.weeklyData.map((w,i)=>{const p=w.sales-w.expenses;const m=w.sales>0?((p/w.sales)*100).toFixed(1):'0.0';
+    return`<tr><td><strong>${w.week}</strong></td><td>${fmt(w.sales)}</td><td>${fmt(w.expenses)}</td>
+    <td style="color:${p>=0?'var(--green)':'var(--red)'}"><strong>${fmt(p)}</strong></td>
+    <td><span class="badge ${parseFloat(m)>50?'badge-green':parseFloat(m)>20?'badge-amber':'badge-red'}">${m}%</span></td>
+    <td><button class="btn btn-danger btn-sm" onclick="deleteWeekEntry(${i})">✕</button></td></tr>`;}).join('')}
+    </table></div>
+  </div>
+
+  <!-- DAILY TAB -->
+  <div id="sales-tab-daily" class="hidden">
+    <div class="stat-grid" style="grid-template-columns:repeat(4,1fr)">
+      <div class="stat-card bg-green"><div class="sc-val">${DB.dailySummaries.length}</div><div class="sc-label">Days Recorded</div></div>
+      <div class="stat-card bg-teal"><div class="sc-val">${fmt(totalDailySales)}</div><div class="sc-label">Total Sales</div></div>
+      <div class="stat-card bg-red"><div class="sc-val">${fmt(totalDailyExp)}</div><div class="sc-label">Total Expenses</div></div>
+      <div class="stat-card bg-indigo"><div class="sc-val">${fmt(totalDailySales-totalDailyExp)}</div><div class="sc-label">Net Profit</div></div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><div class="panel-title">➕ Add Daily Entry Manually</div>
+      <button class="btn btn-success btn-sm" onclick="printDailyReport()">🖨 PDF Report</button></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Date</label><input class="form-input" id="dd-date" type="date" value="${new Date().toISOString().split('T')[0]}"/></div>
+        <div class="form-group"><label class="form-label">Expenses (£)</label><input class="form-input" id="dd-exp" type="number" step="0.01" placeholder="0.00"/></div>
+      </div>
+      <div style="font-size:12px;font-weight:500;color:var(--text2);margin-bottom:8px">Sales by Channel</div>
+      <div class="form-row-4">
+        <div class="form-group"><label class="form-label">💵 Cash</label><input class="form-input" id="dd-cash" type="number" step="0.01" placeholder="0.00"/></div>
+        <div class="form-group"><label class="form-label">💳 Card</label><input class="form-input" id="dd-card" type="number" step="0.01" placeholder="0.00"/></div>
+        <div class="form-group"><label class="form-label">🌐 Web</label><input class="form-input" id="dd-web" type="number" step="0.01" placeholder="0.00"/></div>
+        <div class="form-group"><label class="form-label">🍕 Just Eat</label><input class="form-input" id="dd-je" type="number" step="0.01" placeholder="0.00"/></div>
+      </div>
+      <div class="form-row-4">
+        <div class="form-group"><label class="form-label">🚗 Uber Eats</label><input class="form-input" id="dd-ue" type="number" step="0.01" placeholder="0.00"/></div>
+        <div class="form-group"><label class="form-label">🦘 Deliveroo</label><input class="form-input" id="dd-dr" type="number" step="0.01" placeholder="0.00"/></div>
+        <div class="form-group"><label class="form-label">🍔 Foodhub</label><input class="form-input" id="dd-fh" type="number" step="0.01" placeholder="0.00"/></div>
+        <div class="form-group"><label class="form-label">📦 Other</label><input class="form-input" id="dd-ot" type="number" step="0.01" placeholder="0.00"/></div>
+      </div>
+      <div class="form-group" style="margin-bottom:11px"><label class="form-label">Notes</label><input class="form-input" id="dd-notes" placeholder="Any notes for this day"/></div>
+      <button class="btn btn-primary" onclick="addDailySummary()">+ Save Daily Summary</button>
+    </div>
+    <div id="daily-summaries-list">
+      ${DB.dailySummaries.length===0?'<div class="alert alert-info">No daily summaries yet. Add one above or scan a receipt.</div>':
+      [...DB.dailySummaries].reverse().map(ds=>renderDayCard(ds)).join('')}
     </div>
   </div>
 
-  <div class="two-col">
-    <div class="panel">
-      <div class="panel-header"><div class="panel-title">Sales per Week</div>
-      <button class="btn btn-success btn-sm" onclick="printWeeklyReport()">🖨 PDF</button></div>
-      <div class="chart-wrap"><canvas id="sales-chart"></canvas></div>
-    </div>
-    <div class="panel">
-      <div class="panel-header"><div class="panel-title">Expenses per Week</div></div>
-      <div class="chart-wrap"><canvas id="exp-chart"></canvas></div>
+  <!-- SCAN RECEIPT TAB -->
+  <div id="sales-tab-scan" class="hidden">
+    <div class="alert alert-purple">📸 Upload a photo of your daily sales receipt. The system will automatically read the sales figures, expenses and date from it.</div>
+    <div class="two-col">
+      <div class="panel">
+        <div class="panel-header"><div class="panel-title">Upload Receipt Photo</div></div>
+        <div class="file-drop" id="receipt-drop" onclick="document.getElementById('receipt-input').click()">
+          <div class="file-drop-icon">📷</div>
+          <div class="file-drop-text">Click to upload or drag a receipt photo</div>
+          <div class="file-drop-sub">JPG, PNG, WEBP, HEIC — any photo format</div>
+        </div>
+        <input type="file" id="receipt-input" accept="image/*" style="display:none" onchange="loadReceiptImage(this)"/>
+        <div id="receipt-img-wrap" style="margin-top:12px;display:none">
+          <img id="receipt-preview" class="scan-preview"/>
+          <button class="btn btn-purple" style="width:100%;margin-top:8px" onclick="scanReceipt()">
+            🔍 Scan & Extract Data
+          </button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><div class="panel-title">Extracted Data</div></div>
+        <div id="scan-results">
+          <div style="text-align:center;padding:30px;color:var(--text3)">
+            <div style="font-size:32px;margin-bottom:8px">👁</div>
+            <div style="font-size:13px">Upload a receipt photo to extract data automatically</div>
+          </div>
+        </div>
+        <div id="scan-save-btn" style="display:none;margin-top:12px">
+          <button class="btn btn-success" style="width:100%" onclick="saveScanResult()">✅ Save to Daily Summaries</button>
+        </div>
+      </div>
     </div>
   </div>
-  <div class="panel">
-    <div class="panel-header"><div class="panel-title">Sales vs Expenses</div></div>
-    <div class="chart-wrap" style="height:230px"><canvas id="compare-chart"></canvas></div>
-  </div>
-  <div class="panel">
-    <div class="panel-header"><div class="panel-title">Weekly Breakdown</div>
-    <button class="btn btn-outline btn-sm" onclick="exportJSON('weeklyData')">⬇ Export JSON</button></div>
-    <table class="tbl">
-      <tr><th>Week</th><th>Sales</th><th>Expenses</th><th>Profit</th><th>Margin</th><th></th></tr>
-      ${DB.weeklyData.map((w,i)=>{
-        const profit=w.sales-w.expenses;
-        const margin=w.sales>0?((profit/w.sales)*100).toFixed(1):'0.0';
-        return`<tr>
-          <td><strong>${w.week}</strong></td>
-          <td>${fmt(w.sales)}</td>
-          <td>${fmt(w.expenses)}</td>
-          <td style="color:${profit>=0?'var(--green)':'var(--red)'}"><strong>${fmt(profit)}</strong></td>
-          <td><span class="badge ${parseFloat(margin)>50?'badge-green':parseFloat(margin)>20?'badge-amber':'badge-red'}">${margin}%</span></td>
-          <td><button class="btn btn-danger btn-sm" onclick="deleteWeekEntry(${i})">✕</button></td>
-        </tr>`;
-      }).join('')}
-    </table>
+
+  <!-- XLS IMPORT TAB -->
+  <div id="sales-tab-xls" class="hidden">
+    <div class="alert alert-info">📥 Import a spreadsheet (.xlsx or .xls) containing your sales or expenses data. The system will preview the data and let you import it.</div>
+    <div class="panel">
+      <div class="panel-header"><div class="panel-title">Import Excel / CSV File</div></div>
+      <div class="file-drop" onclick="document.getElementById('xls-input').click()">
+        <div class="file-drop-icon">📊</div>
+        <div class="file-drop-text">Click to upload your spreadsheet</div>
+        <div class="file-drop-sub">Supports .xlsx, .xls, .csv formats</div>
+        <div id="xls-chosen" style="margin-top:8px;font-size:12px;color:var(--accent);font-weight:500"></div>
+      </div>
+      <input type="file" id="xls-input" accept=".xlsx,.xls,.csv" style="display:none" onchange="loadXLSFile(this)"/>
+      <div id="xls-preview-wrap" style="display:none;margin-top:14px">
+        <div style="font-size:12.5px;font-weight:500;color:var(--text2);margin-bottom:8px">Preview (first 10 rows):</div>
+        <div class="xls-preview" id="xls-preview"></div>
+        <div style="margin-top:12px" class="btn-group">
+          <button class="btn btn-success" onclick="importXLSAsWeekly()">Import as Weekly Sales Data</button>
+          <button class="btn btn-amber" onclick="importXLSAsExpenses()">Import as Expenses</button>
+          <button class="btn btn-outline" onclick="document.getElementById('xls-preview-wrap').style.display='none'">Clear</button>
+        </div>
+        <div id="xls-import-note" style="margin-top:8px;font-size:11.5px;color:var(--text3)">
+          Expected columns for weekly: <strong>Week, Sales, Expenses</strong> &nbsp;|&nbsp; For expenses: <strong>Description, Category, Amount, Date</strong>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><div class="panel-title">Download Template</div></div>
+      <p style="font-size:12.5px;color:var(--text2);margin-bottom:12px">Download a pre-formatted Excel template to fill in your data:</p>
+      <div class="btn-group">
+        <button class="btn btn-outline" onclick="downloadWeeklyTemplate()">⬇ Weekly Sales Template</button>
+        <button class="btn btn-outline" onclick="downloadExpenseTemplate()">⬇ Expenses Template</button>
+      </div>
+    </div>
   </div>`;
 }
 
-function addWeeklyEntry(){
-  const week=(document.getElementById('wk-week').value||'').trim();
-  const sales=parseFloat(document.getElementById('wk-sales').value)||0;
-  const expenses=parseFloat(document.getElementById('wk-exp').value)||0;
-  if(!week){alert('Please enter a week label');return;}
-  DB.weeklyData.push({week,sales,expenses});
-  showPage('salesweekly');
-}
-function deleteWeekEntry(i){
-  if(confirm('Remove this week entry?')){DB.weeklyData.splice(i,1);showPage('salesweekly');}
-}
-function printWeeklyReport(){
-  const rows=DB.weeklyData.map(w=>{const p=w.sales-w.expenses;return`<tr><td>${w.week}</td><td>${fmt(w.sales)}</td><td>${fmt(w.expenses)}</td><td>${fmt(p)}</td></tr>`}).join('');
-  printA4(`<h2>Weekly Sales &amp; Expenses Report</h2>
-  <table><tr><th>Week</th><th>Sales</th><th>Expenses</th><th>Profit</th></tr>${rows}</table>`,'Sales & Expenses Weekly');
+// Tab switching
+function switchSalesTab(tab){
+  ['weekly','daily','scan','xls'].forEach(t=>{
+    document.getElementById(`sales-tab-${t}`).classList.toggle('hidden',t!==tab);
+    document.getElementById(`tab-${t}`).classList.toggle('active',t===tab);
+  });
+  if(tab==='weekly') initCharts('salesweekly');
 }
 
-// ════════════════════════════════════════════════════════════
+// Render day card
+function renderDayCard(ds){
+  const ch=ds.channels||{};
+  const profit=ds.totalSales-ds.expenses;
+  const channels=[['Cash',ch.cash],['Card',ch.card],['Web',ch.web],['Just Eat',ch.justeat],['Uber Eats',ch.ubereat],['Deliveroo',ch.deliveroo],['Foodhub',ch.foodhub],['Other',ch.other]].filter(([,v])=>v&&v>0);
+  return`<div class="day-card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div>
+        <div style="font-weight:600;font-size:13.5px">${ds.date} ${ds.source==='scan'?'<span class="badge badge-purple" style="font-size:10px">📸 Scanned</span>':''}</div>
+        ${ds.notes?`<div style="font-size:11.5px;color:var(--text3);margin-top:2px">${ds.notes}</div>`:''}
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="text-align:right"><div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:${profit>=0?'var(--green)':'var(--red)'}">${fmt(profit)}</div><div style="font-size:10.5px;color:var(--text3)">Net Profit</div></div>
+        <button class="btn btn-danger btn-sm" onclick="deleteDailySummary(${ds.id})">✕</button>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:10px 0;border-top:1px solid var(--border);border-bottom:${channels.length>0?'1px solid var(--border)':'none'};margin-bottom:${channels.length>0?'10px':'0'}">
+      <div style="text-align:center"><div style="font-weight:600;font-size:13px;color:var(--green)">${fmt(ds.totalSales)}</div><div style="font-size:10.5px;color:var(--text3)">Total Sales</div></div>
+      <div style="text-align:center"><div style="font-weight:600;font-size:13px;color:var(--red)">${fmt(ds.expenses)}</div><div style="font-size:10.5px;color:var(--text3)">Expenses</div></div>
+      <div style="text-align:center"><div style="font-weight:600;font-size:13px;color:var(--amber)">${fmt(ds.tillLeft||0)}</div><div style="font-size:10.5px;color:var(--text3)">Till Left</div></div>
+      <div style="text-align:center"><div style="font-weight:600;font-size:13px;color:var(--accent)">${ds.totalSales>0?((profit/ds.totalSales)*100).toFixed(1):'0.0'}%</div><div style="font-size:10.5px;color:var(--text3)">Margin</div></div>
+    </div>
+    ${channels.length>0?`<div style="display:flex;flex-wrap:wrap;gap:6px">
+      ${channels.map(([l,v])=>`<div style="background:var(--gray-light);border-radius:6px;padding:4px 8px;font-size:11px"><span style="color:var(--text3)">${l}: </span><strong>${fmt(v)}</strong></div>`).join('')}
+    </div>`:''}
+  </div>`;
+}
+
+function addDailySummary(){
+  const v=n=>parseFloat(document.getElementById(n).value)||0;
+  const cash=v('dd-cash'),card=v('dd-card'),web=v('dd-web'),je=v('dd-je'),ue=v('dd-ue'),dr=v('dd-dr'),fh=v('dd-fh'),ot=v('dd-ot');
+  const total=cash+card+web+je+ue+dr+fh+ot;
+  if(total===0){alert('Please enter at least one sales figure');return;}
+  DB.dailySummaries.push({id:Date.now(),date:document.getElementById('dd-date').value,
+    channels:{cash,card,web,justeat:je,ubereat:ue,deliveroo:dr,foodhub:fh,other:ot},
+    totalSales:total,expenses:v('dd-exp'),tillLeft:0,notes:document.getElementById('dd-notes').value,source:'manual'});
+  showPage('salesweekly');setTimeout(()=>switchSalesTab('daily'),50);
+}
+function deleteDailySummary(id){if(confirm('Delete this daily summary?')){DB.dailySummaries=DB.dailySummaries.filter(d=>d.id!==id);showPage('salesweekly');setTimeout(()=>switchSalesTab('daily'),50);}}
+function addWeeklyEntry(){
+  const week=(document.getElementById('wk-week').value||'').trim();if(!week){alert('Enter a week label');return;}
+  DB.weeklyData.push({week,sales:parseFloat(document.getElementById('wk-sales').value)||0,expenses:parseFloat(document.getElementById('wk-exp').value)||0});
+  showPage('salesweekly');
+}
+function deleteWeekEntry(i){if(confirm('Remove this entry?')){DB.weeklyData.splice(i,1);showPage('salesweekly');}}
+function printWeeklyReport(){
+  printA4(`<h2>Weekly Sales &amp; Expenses</h2><table><tr><th>Week</th><th>Sales</th><th>Expenses</th><th>Profit</th></tr>
+  ${DB.weeklyData.map(w=>`<tr><td>${w.week}</td><td>${fmt(w.sales)}</td><td>${fmt(w.expenses)}</td><td>${fmt(w.sales-w.expenses)}</td></tr>`).join('')}</table>`,'Weekly Report');
+}
+function printDailyReport(){
+  printA4(`<h2>Daily Sales Summary</h2><table><tr><th>Date</th><th>Total Sales</th><th>Expenses</th><th>Net Profit</th><th>Source</th></tr>
+  ${DB.dailySummaries.map(d=>`<tr><td>${d.date}</td><td>${fmt(d.totalSales)}</td><td>${fmt(d.expenses)}</td><td>${fmt(d.totalSales-d.expenses)}</td><td>${d.source}</td></tr>`).join('')}</table>`,'Daily Summary Report');
+}
+
+// ── RECEIPT SCANNING ───────────────────────────────────────
+let _receiptDataUrl='';
+let _scannedData=null;
+
+function loadReceiptImage(input){
+  const f=input.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    _receiptDataUrl=ev.target.result;
+    document.getElementById('receipt-preview').src=_receiptDataUrl;
+    document.getElementById('receipt-img-wrap').style.display='block';
+  };r.readAsDataURL(f);
+}
+
+function scanReceipt(){
+  if(!_receiptDataUrl){alert('Please upload a receipt image first');return;}
+  document.getElementById('scan-results').innerHTML=`
+    <div style="text-align:center;padding:24px">
+      <div class="spinner" style="width:28px;height:28px;border-width:3px"></div>
+      <div style="margin-top:10px;font-size:13px;color:var(--text2)">Reading receipt...</div>
+      <div style="font-size:11.5px;color:var(--text3);margin-top:4px">Extracting sales figures, expenses and date</div>
+    </div>`;
+  // Use Claude API to read the receipt
+  callClaudeVision(_receiptDataUrl);
+}
+
+async function callClaudeVision(imageDataUrl){
+  try{
+    const base64=imageDataUrl.split(',')[1];
+    const mimeMatch=imageDataUrl.match(/data:([^;]+);/);
+    const mimeType=mimeMatch?mimeMatch[1]:'image/jpeg';
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        messages:[{role:'user',content:[
+          {type:'image',source:{type:'base64',media_type:mimeType,data:base64}},
+          {type:'text',text:`This is a receipt or daily sales summary sheet. Extract the following data and respond ONLY with valid JSON, no other text:
+{
+  "date": "YYYY-MM-DD or DD/MM/YYYY as shown, or null",
+  "cash": number or 0,
+  "card": number or 0,
+  "web": number or 0,
+  "justeat": number or 0,
+  "ubereat": number or 0,
+  "deliveroo": number or 0,
+  "foodhub": number or 0,
+  "other": number or 0,
+  "totalSales": number or 0,
+  "expenses": number or 0,
+  "tillLeft": number or 0
+}
+Extract numbers as plain floats (no currency symbols). If a field is not visible, use 0. If total sales is shown, use it. Otherwise sum the channels.`}
+        ]}]
+      })
+    });
+    const data=await resp.json();
+    const text=data.content&&data.content[0]&&data.content[0].text||'{}';
+    let parsed;
+    try{parsed=JSON.parse(text.replace(/```json|```/g,'').trim());}
+    catch{parsed={};}
+    _scannedData=parsed;
+    displayScanResults(parsed);
+  }catch(err){
+    document.getElementById('scan-results').innerHTML=`<div class="alert alert-warning">⚠ Could not connect to scanning service. Please enter data manually in the Daily Summary tab.<br><small>${err.message}</small></div>`;
+  }
+}
+
+function displayScanResults(d){
+  const channels=[['💵 Cash','cash'],['💳 Card','card'],['🌐 Web Sales','web'],['🍕 Just Eat','justeat'],['🚗 Uber Eats','ubereat'],['🦘 Deliveroo','deliveroo'],['🍔 Foodhub','foodhub'],['📦 Other','other']];
+  const html=`
+    <div class="scan-result-row"><span class="sr-label">📅 Date</span><span class="sr-val">${d.date||'Not found'}</span></div>
+    ${channels.filter(([,k])=>d[k]&&d[k]>0).map(([l,k])=>`<div class="scan-result-row"><span class="sr-label">${l}</span><span class="sr-val">${fmt(d[k])}</span></div>`).join('')}
+    <div class="scan-result-row" style="background:#dbeafe;border-color:#93c5fd;color:#1e40af"><span class="sr-label" style="font-size:13px">💰 Total Sales</span><span class="sr-val" style="font-size:14px;color:#1d4ed8">${fmt(d.totalSales)}</span></div>
+    ${d.expenses>0?`<div class="scan-result-row scan-pending"><span class="sr-label">🧾 Expenses</span><span class="sr-val">${fmt(d.expenses)}</span></div>`:''}
+    ${d.tillLeft>0?`<div class="scan-result-row scan-pending"><span class="sr-label">🏧 Till Left</span><span class="sr-val">${fmt(d.tillLeft)}</span></div>`:''}
+    <div class="alert alert-success" style="margin-top:8px;margin-bottom:0">✅ Data extracted successfully. Review above and click Save.</div>`;
+  document.getElementById('scan-results').innerHTML=html;
+  document.getElementById('scan-save-btn').style.display='block';
+}
+
+function saveScanResult(){
+  if(!_scannedData){alert('No scanned data to save');return;}
+  const d=_scannedData;
+  const ch={cash:d.cash||0,card:d.card||0,web:d.web||0,justeat:d.justeat||0,ubereat:d.ubereat||0,deliveroo:d.deliveroo||0,foodhub:d.foodhub||0,other:d.other||0};
+  const total=d.totalSales||Object.values(ch).reduce((a,b)=>a+b,0);
+  let dateStr=d.date||new Date().toISOString().split('T')[0];
+  if(dateStr.includes('/')){const p=dateStr.split('/');if(p.length===3)dateStr=`${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;}
+  DB.dailySummaries.push({id:Date.now(),date:dateStr,channels:ch,totalSales:total,expenses:d.expenses||0,tillLeft:d.tillLeft||0,notes:'From receipt scan',source:'scan'});
+  _scannedData=null;_receiptDataUrl='';
+  alert('✅ Daily summary saved from receipt scan!');
+  showPage('salesweekly');setTimeout(()=>switchSalesTab('daily'),50);
+}
+
+// ── XLS IMPORT ─────────────────────────────────────────────
+let _xlsData=[];
+function loadXLSFile(input){
+  const f=input.files[0];if(!f)return;
+  document.getElementById('xls-chosen').textContent=`📊 ${f.name}`;
+  const r=new FileReader();
+  r.onload=ev=>{
+    try{
+      const wb=XLSX.read(ev.target.result,{type:'binary'});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      _xlsData=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+      renderXLSPreview();
+    }catch(e){alert('Could not read spreadsheet: '+e.message);}
+  };r.readAsBinaryString(f);
+}
+function renderXLSPreview(){
+  if(!_xlsData||_xlsData.length===0){alert('No data found in spreadsheet');return;}
+  const preview=_xlsData.slice(0,11);
+  const html=`<table><tr>${(preview[0]||[]).map(h=>`<th>${h}</th>`).join('')}</tr>
+  ${preview.slice(1).map(row=>`<tr>${row.map(cell=>`<td>${cell}</td>`).join('')}</tr>`).join('')}</table>`;
+  document.getElementById('xls-preview').innerHTML=html;
+  document.getElementById('xls-preview-wrap').style.display='block';
+}
+function importXLSAsWeekly(){
+  if(!_xlsData||_xlsData.length<2){alert('No data');return;}
+  const headers=(_xlsData[0]||[]).map(h=>(h+'').toLowerCase().trim());
+  const wi=headers.findIndex(h=>h.includes('week'));
+  const si=headers.findIndex(h=>h.includes('sale'));
+  const ei=headers.findIndex(h=>h.includes('exp'));
+  if(wi===-1||si===-1){alert('Could not find Week and Sales columns. Expected headers: Week, Sales, Expenses');return;}
+  let count=0;
+  _xlsData.slice(1).forEach(row=>{
+    const w=(row[wi]+'').trim();const s=parseFloat(row[si])||0;const e=ei>=0?parseFloat(row[ei])||0:0;
+    if(w&&s>0){DB.weeklyData.push({week:w,sales:s,expenses:e});count++;}
+  });
+  alert(`✅ Imported ${count} weekly entries`);showPage('salesweekly');
+}
+function importXLSAsExpenses(){
+  if(!_xlsData||_xlsData.length<2){alert('No data');return;}
+  const headers=(_xlsData[0]||[]).map(h=>(h+'').toLowerCase().trim());
+  const di=headers.findIndex(h=>h.includes('desc')||h.includes('description'));
+  const ci=headers.findIndex(h=>h.includes('cat'));
+  const ai=headers.findIndex(h=>h.includes('amount')||h.includes('cost'));
+  const dti=headers.findIndex(h=>h.includes('date'));
+  if(ai===-1){alert('Could not find Amount column. Expected headers: Description, Category, Amount, Date');return;}
+  let count=0;
+  _xlsData.slice(1).forEach(row=>{
+    const desc=(di>=0?row[di]:'Imported')+''||'Imported';
+    const amt=parseFloat(row[ai])||0;
+    if(amt>0){DB.expenses.push({id:Date.now()+count,desc,category:ci>=0?(row[ci]+''):'Other',
+      amount:amt,date:dti>=0?(row[dti]+''):new Date().toISOString().split('T')[0],
+      paidBy:'',ref:'XLS Import',notes:'',status:'Pending'});count++;}
+  });
+  alert(`✅ Imported ${count} expense records`);showPage('accounts');
+}
+function downloadWeeklyTemplate(){
+  const ws=XLSX.utils.aoa_to_sheet([['Week','Sales','Expenses'],['W1 Jan',5000,1200],['W2 Jan',4800,1100]]);
+  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Weekly Sales');
+  XLSX.writeFile(wb,'worksphere_weekly_template.xlsx');
+}
+function downloadExpenseTemplate(){
+  const ws=XLSX.utils.aoa_to_sheet([['Description','Category','Amount','Date'],['Office Supplies','Operations',120,'2026-03-01'],['Software','Tech',350,'2026-03-05']]);
+  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Expenses');
+  XLSX.writeFile(wb,'worksphere_expenses_template.xlsx');
+}
+
+// ════════════════════════════════════════════════
 // REPORTS
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════
 function renderReports(){
   return `
   <div class="three-col" style="margin-bottom:16px">
-    <div class="panel" style="cursor:pointer">
-      <div style="font-size:26px;margin-bottom:7px">👥</div>
-      <div class="panel-title" style="margin-bottom:4px">HR Summary</div>
-      <div style="font-size:11.5px;color:var(--text3);margin-bottom:12px">Staff, attendance, leave</div>
-      <button class="btn btn-primary btn-sm" style="width:100%" onclick="printHRReport()">🖨 Generate PDF</button>
-    </div>
-    <div class="panel" style="cursor:pointer">
-      <div style="font-size:26px;margin-bottom:7px">💷</div>
-      <div class="panel-title" style="margin-bottom:4px">Payroll Report</div>
-      <div style="font-size:11.5px;color:var(--text3);margin-bottom:12px">Gross, net, tax breakdown</div>
-      <button class="btn btn-success btn-sm" style="width:100%" onclick="printPayrollReport()">🖨 Generate PDF</button>
-    </div>
-    <div class="panel" style="cursor:pointer">
-      <div style="font-size:26px;margin-bottom:7px">📊</div>
-      <div class="panel-title" style="margin-bottom:4px">Finance Report</div>
-      <div style="font-size:11.5px;color:var(--text3);margin-bottom:12px">Invoices, expenses, cash flow</div>
-      <button class="btn btn-amber btn-sm" style="width:100%" onclick="printFinanceReport()">🖨 Generate PDF</button>
-    </div>
+    ${[['👥','HR Summary','Staff, leave, attendance','btn-primary','printHRReport()'],
+       ['💷','Payroll Report','Gross, net, tax breakdown','btn-success','printPayrollReport()'],
+       ['📊','Finance Report','Invoices, expenses, cash flow','btn-amber','printFinanceReport()']].map(([ic,t,s,c,fn])=>
+    `<div class="panel" style="text-align:center">
+      <div style="font-size:26px;margin-bottom:7px">${ic}</div>
+      <div class="panel-title" style="margin-bottom:4px">${t}</div>
+      <div style="font-size:11.5px;color:var(--text3);margin-bottom:12px">${s}</div>
+      <button class="btn ${c} btn-sm" style="width:100%" onclick="${fn}">🖨 Generate PDF</button>
+    </div>`).join('')}
   </div>
   <div class="panel">
     <div class="panel-header"><div class="panel-title">Custom Report Builder</div></div>
     <div class="form-row">
-      <div class="form-group"><label class="form-label">Report Type</label>
-      <select class="form-input" id="rpt-type"><option>Headcount</option><option>Absence</option><option>Payroll Summary</option><option>Invoice Summary</option></select></div>
-      <div class="form-group"><label class="form-label">Department</label>
-      <select class="form-input"><option>All</option><option>HR</option><option>Tech</option><option>Sales</option><option>Finance</option></select></div>
+      <div class="form-group"><label class="form-label">Report Type</label><select class="form-input"><option>Headcount</option><option>Absence</option><option>Payroll Summary</option><option>Invoice Summary</option><option>Daily Sales</option></select></div>
+      <div class="form-group"><label class="form-label">Department</label><select class="form-input"><option>All</option><option>HR</option><option>Tech</option><option>Sales</option><option>Finance</option></select></div>
     </div>
     <div class="form-row">
-      <div class="form-group"><label class="form-label">From Date</label><input class="form-input" type="date"/></div>
-      <div class="form-group"><label class="form-label">To Date</label><input class="form-input" type="date"/></div>
+      <div class="form-group"><label class="form-label">From</label><input class="form-input" type="date"/></div>
+      <div class="form-group"><label class="form-label">To</label><input class="form-input" type="date"/></div>
     </div>
     <div class="btn-group">
-      <button class="btn btn-primary" onclick="printHRReport()">🖨 Export as PDF</button>
-      <button class="btn btn-outline" onclick="exportJSON('staff')">⬇ Export as JSON</button>
+      <button class="btn btn-primary" onclick="printHRReport()">🖨 Export PDF</button>
+      <button class="btn btn-outline" onclick="exportJSON('staff')">⬇ Export JSON</button>
     </div>
   </div>`;
 }
 function printHRReport(){
-  printA4(`<h2>Staff Summary</h2>
-  <table><tr><th>Name</th><th>Role</th><th>Department</th><th>Contract</th><th>Salary</th><th>Status</th></tr>
+  printA4(`<h2>Staff Summary</h2><table><tr><th>Name</th><th>Role</th><th>Dept</th><th>Contract</th><th>Salary</th><th>Status</th></tr>
   ${DB.staff.map(s=>`<tr><td>${s.name}</td><td>${s.role}</td><td>${s.dept}</td><td>${s.contract}</td><td>${fmt(s.salary)}</td><td>${s.status}</td></tr>`).join('')}</table>
-  <h2>Leave Summary</h2>
-  <table><tr><th>Name</th><th>Type</th><th>Days</th><th>Status</th></tr>
+  <h2>Leave Summary</h2><table><tr><th>Name</th><th>Type</th><th>Days</th><th>Status</th></tr>
   ${DB.leave.map(l=>`<tr><td>${l.name}</td><td>${l.type}</td><td>${l.days}</td><td>${l.status}</td></tr>`).join('')}</table>`,'HR Summary Report');
 }
 function printPayrollReport(){
-  printA4(`<h2>Payroll Summary</h2>
-  <table><tr><th>Staff</th><th>Gross</th><th>Tax</th><th>NI</th><th>Pension</th><th>Net Pay</th></tr>
+  printA4(`<h2>Payroll Summary</h2><table><tr><th>Staff</th><th>Gross</th><th>Tax</th><th>NI</th><th>Pension</th><th>Net Pay</th></tr>
   ${DB.payslips.map(p=>`<tr><td>${p.staff}</td><td>${fmt(p.gross)}</td><td>${fmt(p.tax)}</td><td>${fmt(p.ni)}</td><td>${fmt(p.pension)}</td><td>${fmt(p.net)}</td></tr>`).join('')}
   <tr><td><strong>Total</strong></td><td><strong>${fmt(DB.payslips.reduce((a,b)=>a+b.gross,0))}</strong></td><td></td><td></td><td></td><td><strong>${fmt(DB.payslips.reduce((a,b)=>a+b.net,0))}</strong></td></tr></table>`,'Payroll Report');
 }
 function printFinanceReport(){
-  printA4(`<h2>Invoices</h2>
-  <table><tr><th>ID</th><th>Client</th><th>Amount</th><th>Status</th></tr>
+  printA4(`<h2>Invoices</h2><table><tr><th>ID</th><th>Client</th><th>Amount</th><th>Status</th></tr>
   ${DB.invoices.map(i=>`<tr><td>${i.id}</td><td>${i.client}</td><td>${fmt(i.amount)}</td><td>${i.status}</td></tr>`).join('')}</table>
-  <h2>Expenses</h2>
-  <table><tr><th>Description</th><th>Category</th><th>Amount</th><th>Status</th></tr>
+  <h2>Expenses</h2><table><tr><th>Description</th><th>Category</th><th>Amount</th><th>Status</th></tr>
   ${DB.expenses.map(e=>`<tr><td>${e.desc}</td><td>${e.category}</td><td>${fmt(e.amount)}</td><td>${e.status}</td></tr>`).join('')}</table>`,'Finance Report');
 }
 
-// ════════════════════════════════════════════════════════════
-// PDF EXPORT CENTRE
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════
+// PDF EXPORT
+// ════════════════════════════════════════════════
 function renderPDFExport(){
-  const items=[
-    {icon:'💷',label:'All Payslips',color:'btn-success',fn:'printPayrollReport()'},
-    {icon:'📄',label:'Invoice List',color:'btn-primary',fn:'printFinanceReport()'},
-    {icon:'👥',label:'HR Staff Report',color:'btn-primary',fn:'printHRReport()'},
-    {icon:'📅',label:'Rota Schedule',color:'btn-primary',fn:'printRotaPDF()'},
-    {icon:'📊',label:'Finance Report',color:'btn-amber',fn:'printFinanceReport()'},
-    {icon:'📈',label:'Sales & Expenses',color:'btn-success',fn:'printWeeklyReport()'},
-    {icon:'🌴',label:'Leave Report',color:'btn-primary',fn:'printLeaveReport()'},
-    {icon:'🚨',label:'Accident Log',color:'btn-danger',fn:'printAccidentReport()'},
-  ];
-  return `
-  <div class="alert alert-info" style="margin-bottom:18px">
-    📄 All exports open as A4 print-ready pages in a new tab. Use Ctrl+P / Cmd+P to save as PDF or print.
-  </div>
+  const items=[['💷','Payslips','printPayrollReport()','btn-success'],['📄','Invoices','printFinanceReport()','btn-primary'],['👥','HR Report','printHRReport()','btn-primary'],['📅','Rota','printRotaPDF()','btn-primary'],['📆','Daily Summary','printDailyReport()','btn-teal'],['📈','Weekly Report','printWeeklyReport()','btn-success'],['🌴','Leave Report','printLeaveReport()','btn-primary'],['🚨','Accident Log','printAccidentReport()','btn-danger']];
+  return `<div class="alert alert-info" style="margin-bottom:18px">📄 All exports open as A4 print-ready pages. Use Ctrl+P / Cmd+P to save as PDF or print. Company logo appears on all documents when set in Company Settings.</div>
   <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:13px">
-    ${items.map(i=>`<div class="panel" style="text-align:center">
-      <div style="font-size:30px;margin-bottom:9px">${i.icon}</div>
-      <div style="font-weight:600;font-size:13.5px;margin-bottom:11px">${i.label}</div>
-      <button class="btn ${i.color}" style="width:100%" onclick="${i.fn}">🖨 Export A4 PDF</button>
+    ${items.map(([ic,l,fn,c])=>`<div class="panel" style="text-align:center">
+      <div style="font-size:30px;margin-bottom:9px">${ic}</div>
+      <div style="font-weight:600;font-size:13.5px;margin-bottom:11px">${l}</div>
+      <button class="btn ${c}" style="width:100%" onclick="${fn}">🖨 Export A4 PDF</button>
     </div>`).join('')}
   </div>`;
 }
-function printLeaveReport(){
-  printA4(`<h2>Leave Report</h2>
-  <table><tr><th>Staff</th><th>Type</th><th>From</th><th>To</th><th>Days</th><th>Status</th></tr>
-  ${DB.leave.map(l=>`<tr><td>${l.name}</td><td>${l.type}</td><td>${l.from}</td><td>${l.to}</td><td>${l.days}</td><td>${l.status}</td></tr>`).join('')}</table>`,'Leave Report');
-}
-function printAccidentReport(){
-  printA4(`<h2>Accident & Incident Log</h2>
-  <table><tr><th>Reporter</th><th>Date</th><th>Type</th><th>Location</th><th>Status</th></tr>
-  ${DB.accidents.map(a=>`<tr><td>${a.reporter}</td><td>${a.date}</td><td>${a.type}</td><td>${a.location}</td><td>${a.status}</td></tr>`).join('')}</table>`,'Accident Report');
-}
+function printLeaveReport(){printA4(`<h2>Leave Report</h2><table><tr><th>Staff</th><th>Type</th><th>From</th><th>To</th><th>Days</th><th>Status</th></tr>${DB.leave.map(l=>`<tr><td>${l.name}</td><td>${l.type}</td><td>${l.from}</td><td>${l.to}</td><td>${l.days}</td><td>${l.status}</td></tr>`).join('')}</table>`,'Leave Report');}
+function printAccidentReport(){printA4(`<h2>Accident Log</h2><table><tr><th>Reporter</th><th>Date</th><th>Type</th><th>Location</th><th>Status</th></tr>${DB.accidents.map(a=>`<tr><td>${a.reporter}</td><td>${a.date}</td><td>${a.type}</td><td>${a.location}</td><td>${a.status}</td></tr>`).join('')}</table>`,'Accident Report');}
 
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════
 // IMPORT / EXPORT
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════
 function renderImportExport(){
-  const sections=[
-    {key:'staff',label:'Staff Records',icon:'👥'},
-    {key:'leave',label:'Leave Data',icon:'🌴'},
-    {key:'attendance',label:'Attendance',icon:'🕐'},
-    {key:'invoices',label:'Invoices',icon:'📄'},
-    {key:'expenses',label:'Expenses',icon:'💰'},
-    {key:'accidents',label:'Accidents',icon:'🚨'},
-    {key:'applications',label:'Applications',icon:'📋'},
-    {key:'documents',label:'Documents (metadata)',icon:'🗂'},
-    {key:'rota',label:'Rota',icon:'📅'},
-    {key:'payslips',label:'Payslips',icon:'💷'},
-    {key:'weeklyData',label:'Weekly Sales/Expenses',icon:'📈'},
-  ];
-  return `
-  <div class="alert alert-info" style="margin-bottom:18px">
-    🔄 Export any section as JSON for backup or migration. Import JSON to restore records. Note: uploaded file data (images, PDFs) is stored in the document records and included in exports.
-  </div>
+  const secs=[{key:'staff',label:'Staff Records',icon:'👥'},{key:'leave',label:'Leave Data',icon:'🌴'},{key:'attendance',label:'Attendance',icon:'🕐'},{key:'invoices',label:'Invoices',icon:'📄'},{key:'expenses',label:'Expenses',icon:'💰'},{key:'accidents',label:'Accidents',icon:'🚨'},{key:'applications',label:'Applications',icon:'📋'},{key:'documents',label:'Documents',icon:'🗂'},{key:'rota',label:'Rota',icon:'📅'},{key:'payslips',label:'Payslips',icon:'💷'},{key:'weeklyData',label:'Weekly Sales',icon:'📈'},{key:'dailySummaries',label:'Daily Summaries',icon:'📆'}];
+  return `<div class="alert alert-info" style="margin-bottom:18px">🔄 Export any section as JSON for backup or migration. Import JSON to restore records.</div>
   <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:13px;margin-bottom:18px">
-    ${sections.map(s=>`<div class="panel">
+    ${secs.map(s=>`<div class="panel">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:11px">
         <div style="width:34px;height:34px;background:var(--accent-soft);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px">${s.icon}</div>
-        <div>
-          <div style="font-weight:600;font-size:13.5px">${s.label}</div>
-          <div style="font-size:11px;color:var(--text3)">${(DB[s.key]||[]).length} records</div>
-        </div>
+        <div><div style="font-weight:600;font-size:13.5px">${s.label}</div><div style="font-size:11px;color:var(--text3)">${(DB[s.key]||[]).length} records</div></div>
       </div>
-      <div class="btn-group">
-        <button class="btn btn-outline btn-sm" style="flex:1" onclick="importJSON('${s.key}')">⬆ Import</button>
-        <button class="btn btn-primary btn-sm" style="flex:1" onclick="exportJSON('${s.key}')">⬇ Export</button>
-      </div>
+      <div class="btn-group"><button class="btn btn-outline btn-sm" style="flex:1" onclick="importJSON('${s.key}')">⬆ Import</button><button class="btn btn-primary btn-sm" style="flex:1" onclick="exportJSON('${s.key}')">⬇ Export</button></div>
     </div>`).join('')}
   </div>
-  <div class="panel">
-    <div class="panel-header"><div class="panel-title">Full Database Backup</div></div>
-    <p style="font-size:13px;color:var(--text2);margin-bottom:14px">Download or restore the entire WorkSphere HR database as a single JSON file.</p>
-    <div class="btn-group">
-      <button class="btn btn-primary" onclick="exportAllJSON()">⬇ Export Full Database</button>
-      <button class="btn btn-outline" onclick="importAllJSON()">⬆ Import Full Database</button>
-    </div>
-  </div>`;
+  <div class="panel"><div class="panel-header"><div class="panel-title">Full Database Backup</div></div>
+  <p style="font-size:12.5px;color:var(--text2);margin-bottom:12px">Download or restore the entire database as a single JSON file.</p>
+  <div class="btn-group"><button class="btn btn-primary" onclick="exportAllJSON()">⬇ Export Full Database</button><button class="btn btn-outline" onclick="importAllJSON()">⬆ Import Full Database</button></div></div>`;
 }
-function exportAllJSON(){
-  const blob=new Blob([JSON.stringify(DB,null,2)],{type:'application/json'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`worksphere_full_backup_${Date.now()}.json`;a.click();
-}
-function importAllJSON(){
-  const input=document.createElement('input');input.type='file';input.accept='.json';
-  input.onchange=e=>{
-    const r=new FileReader();
-    r.onload=ev=>{try{Object.assign(DB,JSON.parse(ev.target.result));alert('✅ Full database imported!');showPage(currentPage);}catch{alert('❌ Failed to parse JSON');}};
-    r.readAsText(e.target.files[0]);
-  };input.click();
-}
+function exportAllJSON(){const blob=new Blob([JSON.stringify(DB,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`worksphere_backup_${Date.now()}.json`;a.click();}
+function importAllJSON(){const input=document.createElement('input');input.type='file';input.accept='.json';input.onchange=e=>{const r=new FileReader();r.onload=ev=>{try{Object.assign(DB,JSON.parse(ev.target.result));alert('✅ Database imported!');showPage(currentPage);}catch{alert('❌ Parse failed');}};r.readAsText(e.target.files[0]);};input.click();}
 
-// ════════════════════════════════════════════════════════════
-// COMPANY SETTINGS
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════
+// SETTINGS
+// ════════════════════════════════════════════════
 function renderSettings(){
-  return `
-  <div class="two-col">
+  return `<div class="two-col">
     <div>
       <div class="panel">
         <div class="panel-header"><div class="panel-title">🏢 Company Branding</div></div>
-        <div class="branding-preview" id="branding-preview-box">
+        <div class="branding-preview">
           <div class="bp-logo" id="bp-logo-wrap">
-            ${BRAND.logoDataUrl?`<img id="bp-logo-img" src="${BRAND.logoDataUrl}" style="width:42px;height:42px;object-fit:cover;border-radius:9px"/>`:
-            `<span id="bp-logo-fallback" style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:white">${(BRAND.name||'W').charAt(0)}</span>`}
+            ${BRAND.logoDataUrl?`<img src="${BRAND.logoDataUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:9px"/>`:
+            `<span style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:white">${(BRAND.name||'W').charAt(0)}</span>`}
           </div>
-          <div>
-            <div class="bp-name" id="bp-name-preview">${BRAND.name||'WorkSphere HR'}</div>
-            <div class="bp-sub">Business Portal</div>
-          </div>
+          <div><div class="bp-name" id="bp-name-preview">${BRAND.name||'WorkSphere HR'}</div><div class="bp-sub">Business Portal</div></div>
         </div>
-
-        <div class="settings-section">
-          <div class="settings-section-title">Company Name</div>
-          <div class="form-group" style="margin-bottom:10px">
-            <input class="form-input" id="set-company-name" value="${BRAND.name||'WorkSphere HR'}" placeholder="Enter your company name" oninput="previewBrandName(this.value)"/>
-          </div>
+        <div class="form-group" style="margin-bottom:12px"><label class="form-label">Company Name</label>
+        <input class="form-input" id="set-company-name" value="${BRAND.name||'WorkSphere HR'}" oninput="previewBrandName(this.value)"/></div>
+        <div class="form-group" style="margin-bottom:12px"><label class="form-label">Company Logo</label>
+        <div class="file-drop" onclick="document.getElementById('logo-file-input').click()">
+          ${BRAND.logoDataUrl?`<img src="${BRAND.logoDataUrl}" style="max-height:55px;object-fit:contain;border-radius:7px;margin-bottom:5px"/><br>`:'<div class="file-drop-icon">🖼</div>'}
+          <div class="file-drop-text">Click to upload logo</div>
+          <div class="file-drop-sub">PNG, JPG, SVG, WEBP — any image</div>
         </div>
-
-        <div class="settings-section">
-          <div class="settings-section-title">Company Logo</div>
-          <div class="file-drop" onclick="document.getElementById('logo-file-input').click()" id="logo-drop-zone">
-            ${BRAND.logoDataUrl?`<img src="${BRAND.logoDataUrl}" style="max-height:60px;max-width:160px;object-fit:contain;border-radius:8px;margin-bottom:6px"/><br>`:
-            `<div class="file-drop-icon">🖼</div>`}
-            <div class="file-drop-text">Click to upload your logo</div>
-            <div class="file-drop-sub">PNG, JPG, SVG, WEBP — any image format supported</div>
-          </div>
-          <input type="file" id="logo-file-input" accept="image/*,.svg" style="display:none" onchange="handleLogoUpload(this)"/>
-          ${BRAND.logoDataUrl?`<button class="btn btn-danger btn-sm" style="margin-top:8px" onclick="removeLogo()">Remove Logo</button>`:''}
+        <input type="file" id="logo-file-input" accept="image/*" style="display:none" onchange="handleLogoUpload(this)"/>
+        ${BRAND.logoDataUrl?`<button class="btn btn-danger btn-sm" style="margin-top:8px" onclick="removeLogo()">Remove Logo</button>`:''}
         </div>
-
-        <div class="btn-group" style="margin-top:14px">
-          <button class="btn btn-primary" onclick="saveBranding()">💾 Save Branding</button>
-          <button class="btn btn-outline" onclick="resetBranding()">Reset to Default</button>
-        </div>
+        <div class="alert alert-info" style="margin-bottom:12px">💡 Logo appears in the sidebar AND on all PDF exports including payslips</div>
+        <div class="btn-group"><button class="btn btn-primary" onclick="saveBranding()">💾 Save Branding</button><button class="btn btn-outline" onclick="resetBranding()">Reset</button></div>
       </div>
     </div>
-
     <div>
       <div class="panel">
         <div class="panel-header"><div class="panel-title">👁 Live Preview</div></div>
@@ -1294,96 +1338,52 @@ function renderSettings(){
           <div style="display:flex;align-items:center;gap:10px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.1);margin-bottom:12px">
             <div id="prev-logo-wrap" style="width:38px;height:38px;border-radius:8px;background:var(--accent);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0">
               ${BRAND.logoDataUrl?`<img src="${BRAND.logoDataUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:8px"/>`:
-              `<span id="prev-logo-fallback" style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:white">${(BRAND.name||'W').charAt(0)}</span>`}
+              `<span id="prev-logo-fb" style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:white">${(BRAND.name||'W').charAt(0)}</span>`}
             </div>
-            <div>
-              <div id="prev-name" style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:white">${BRAND.name||'WorkSphere HR'}</div>
-              <div style="font-size:10px;color:var(--accent2);text-transform:uppercase;letter-spacing:1px">Business Portal</div>
-            </div>
+            <div><div id="prev-name" style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:white">${BRAND.name||'WorkSphere HR'}</div>
+            <div style="font-size:10px;color:var(--accent2);text-transform:uppercase;letter-spacing:1px">Business Portal</div></div>
           </div>
-          ${['Dashboard','Staff Management','Rota Management','Attendance'].map(n=>`<div style="padding:7px 10px;border-radius:6px;color:rgba(255,255,255,0.5);font-size:12px;margin:2px 0">${n}</div>`).join('')}
+          ${['Dashboard','Staff Management','Rota','Attendance'].map(n=>`<div style="padding:7px 10px;border-radius:6px;color:rgba(255,255,255,0.45);font-size:12px;margin:2px 0">${n}</div>`).join('')}
         </div>
-        <div class="alert alert-success">✅ Changes apply immediately to the sidebar after saving</div>
+        <div class="alert alert-success">✅ Changes apply to sidebar and all PDFs after saving</div>
       </div>
-
-      <div class="panel">
-        <div class="panel-header"><div class="panel-title">⚙️ Portal Info</div></div>
-        <table class="tbl">
-          <tr><td style="color:var(--text3)">Version</td><td>WorkSphere HR v1.0</td></tr>
-          <tr><td style="color:var(--text3)">Total Staff</td><td>${DB.staff.length}</td></tr>
-          <tr><td style="color:var(--text3)">Documents</td><td>${DB.documents.length}</td></tr>
-          <tr><td style="color:var(--text3)">Last Updated</td><td>${new Date().toLocaleDateString('en-GB')}</td></tr>
-        </table>
-      </div>
+      <div class="panel"><div class="panel-header"><div class="panel-title">ℹ Portal Info</div></div>
+      <table class="tbl">
+        <tr><td style="color:var(--text3)">Version</td><td>WorkSphere HR v2.0</td></tr>
+        <tr><td style="color:var(--text3)">Staff</td><td>${DB.staff.length}</td></tr>
+        <tr><td style="color:var(--text3)">Documents</td><td>${DB.documents.length}</td></tr>
+        <tr><td style="color:var(--text3)">Daily Summaries</td><td>${DB.dailySummaries.length}</td></tr>
+      </table></div>
     </div>
   </div>`;
 }
-
 function previewBrandName(val){
-  const el=document.getElementById('prev-name');
-  const bpEl=document.getElementById('bp-name-preview');
-  if(el) el.textContent=val||'WorkSphere HR';
-  if(bpEl) bpEl.textContent=val||'WorkSphere HR';
-  const fb=document.getElementById('prev-logo-fallback');
-  if(fb&&!BRAND.logoDataUrl) fb.textContent=(val||'W').charAt(0).toUpperCase();
-  const bpfb=document.getElementById('bp-logo-fallback');
-  if(bpfb&&!BRAND.logoDataUrl) bpfb.textContent=(val||'W').charAt(0).toUpperCase();
+  const els=['prev-name','bp-name-preview'];els.forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=val||'WorkSphere HR';});
+  const fb=document.getElementById('prev-logo-fb');if(fb&&!BRAND.logoDataUrl)fb.textContent=(val||'W').charAt(0).toUpperCase();
 }
-
 function handleLogoUpload(input){
-  const f=input.files[0];
-  if(!f) return;
-  const r=new FileReader();
-  r.onload=ev=>{
-    BRAND.logoDataUrl=ev.target.result;
-    // Update live previews
-    ['bp-logo-wrap','prev-logo-wrap'].forEach(id=>{
-      const w=document.getElementById(id);
-      if(w){
-        w.innerHTML=`<img src="${BRAND.logoDataUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:${id==='bp-logo-wrap'?9:8}px"/>`;
-      }
-    });
-    showPage('settings');
-  };
-  r.readAsDataURL(f);
+  const f=input.files[0];if(!f)return;
+  const r=new FileReader();r.onload=ev=>{BRAND.logoDataUrl=ev.target.result;showPage('settings');};r.readAsDataURL(f);
 }
+function removeLogo(){BRAND.logoDataUrl=null;applyBranding();showPage('settings');}
+function saveBranding(){BRAND.name=document.getElementById('set-company-name').value.trim()||'WorkSphere HR';applyBranding();alert(`✅ Branding saved!`);showPage('settings');}
+function resetBranding(){BRAND.name='WorkSphere HR';BRAND.logoDataUrl=null;applyBranding();showPage('settings');}
 
-function removeLogo(){
-  BRAND.logoDataUrl=null;
-  applyBranding();
-  showPage('settings');
-}
-
-function saveBranding(){
-  BRAND.name=document.getElementById('set-company-name').value.trim()||'WorkSphere HR';
-  applyBranding();
-  alert(`✅ Branding saved! Company name: "${BRAND.name}"`);
-  showPage('settings');
-}
-
-function resetBranding(){
-  BRAND.name='WorkSphere HR';
-  BRAND.logoDataUrl=null;
-  applyBranding();
-  showPage('settings');
-}
-
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════
 // CHARTS
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════
 function initCharts(page){
   if(page==='salesweekly'){
-    const wd=DB.weeklyData;
-    const labels=wd.map(w=>w.week);
-    const sales=wd.map(w=>w.sales);
-    const exps=wd.map(w=>w.expenses);
-    const baseOpts={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:'#f1f5f9'},ticks:{callback:v=>'£'+v.toLocaleString()}}}};
-    charts.sales=new Chart(document.getElementById('sales-chart'),{type:'bar',data:{labels,datasets:[{data:sales,backgroundColor:'#10b981',borderRadius:6}]},options:baseOpts});
-    charts.exp=new Chart(document.getElementById('exp-chart'),{type:'bar',data:{labels,datasets:[{data:exps,backgroundColor:'#ef4444',borderRadius:6}]},options:baseOpts});
-    charts.compare=new Chart(document.getElementById('compare-chart'),{type:'line',data:{labels,datasets:[
+    const wd=DB.weeklyData,labels=wd.map(w=>w.week),sales=wd.map(w=>w.sales),exps=wd.map(w=>w.expenses);
+    const base={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:'#f1f5f9'},ticks:{callback:v=>'£'+v.toLocaleString()}}}};
+    const sc=document.getElementById('sales-chart'),ec=document.getElementById('exp-chart'),cc=document.getElementById('compare-chart');
+    if(sc)charts.sales=new Chart(sc,{type:'bar',data:{labels,datasets:[{data:sales,backgroundColor:'#10b981',borderRadius:6}]},options:base});
+    if(ec)charts.exp=new Chart(ec,{type:'bar',data:{labels,datasets:[{data:exps,backgroundColor:'#ef4444',borderRadius:6}]},options:base});
+    if(cc)charts.compare=new Chart(cc,{type:'line',data:{labels,datasets:[
       {label:'Sales',data:sales,borderColor:'#10b981',backgroundColor:'rgba(16,185,129,0.07)',tension:0.4,fill:true,pointBackgroundColor:'#10b981'},
       {label:'Expenses',data:exps,borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,0.07)',tension:0.4,fill:true,pointBackgroundColor:'#ef4444'}
-    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'top'}},scales:{x:{grid:{display:false}},y:{grid:{color:'#f1f5f9'},ticks:{callback:v=>'£'+v.toLocaleString()}}}}});
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'top'}},
+    scales:{x:{grid:{display:false}},y:{grid:{color:'#f1f5f9'},ticks:{callback:v=>'£'+v.toLocaleString()}}}}});
   }
 }
 
@@ -1393,3 +1393,4 @@ showPage('dashboard');
 </script>
 </body>
 </html>
+
