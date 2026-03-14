@@ -7,6 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Syne:wght@600;700&display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -932,8 +933,9 @@ function renderSalesWeekly(){
         <div id="receipt-img-wrap" style="margin-top:12px;display:none">
           <img id="receipt-preview" class="scan-preview"/>
           <button class="btn btn-purple" style="width:100%;margin-top:8px" onclick="scanReceipt()">
-            🔍 Scan & Extract Data
+            🔍 Scan &amp; Extract Data
           </button>
+          <div style="margin-top:8px;font-size:11.5px;color:var(--text3);text-align:center">After scanning, you can edit any values before saving</div>
         </div>
       </div>
       <div class="panel">
@@ -945,7 +947,8 @@ function renderSalesWeekly(){
           </div>
         </div>
         <div id="scan-save-btn" style="display:none;margin-top:12px">
-          <button class="btn btn-success" style="width:100%" onclick="saveScanResult()">✅ Save to Daily Summaries</button>
+          <button class="btn btn-success" style="width:100%;margin-bottom:8px" onclick="saveScanResult()">✅ Save to Daily Summaries</button>
+          <button class="btn btn-outline" style="width:100%" onclick="showPage('salesweekly');setTimeout(()=>switchSalesTab('daily'),50)">📆 View Daily Summaries</button>
         </div>
       </div>
     </div>
@@ -1069,81 +1072,165 @@ function scanReceipt(){
   document.getElementById('scan-results').innerHTML=`
     <div style="text-align:center;padding:24px">
       <div class="spinner" style="width:28px;height:28px;border-width:3px"></div>
-      <div style="margin-top:10px;font-size:13px;color:var(--text2)">Reading receipt...</div>
-      <div style="font-size:11.5px;color:var(--text3);margin-top:4px">Extracting sales figures, expenses and date</div>
+      <div style="margin-top:10px;font-size:13px;color:var(--text2)">Reading receipt with OCR...</div>
+      <div id="ocr-progress" style="font-size:11.5px;color:var(--text3);margin-top:6px">Starting...</div>
+      <div style="margin-top:10px;background:var(--border);border-radius:20px;height:6px;overflow:hidden;width:80%;margin-left:auto;margin-right:auto">
+        <div id="ocr-bar" style="height:100%;background:var(--accent);width:0%;border-radius:20px;transition:width 0.3s"></div>
+      </div>
     </div>`;
-  // Use Claude API to read the receipt
-  callClaudeVision(_receiptDataUrl);
+  runTesseractOCR(_receiptDataUrl);
 }
 
-async function callClaudeVision(imageDataUrl){
+async function runTesseractOCR(imageDataUrl){
   try{
-    const base64=imageDataUrl.split(',')[1];
-    const mimeMatch=imageDataUrl.match(/data:([^;]+);/);
-    const mimeType=mimeMatch?mimeMatch[1]:'image/jpeg';
-    const resp=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1000,
-        messages:[{role:'user',content:[
-          {type:'image',source:{type:'base64',media_type:mimeType,data:base64}},
-          {type:'text',text:`This is a receipt or daily sales summary sheet. Extract the following data and respond ONLY with valid JSON, no other text:
-{
-  "date": "YYYY-MM-DD or DD/MM/YYYY as shown, or null",
-  "cash": number or 0,
-  "card": number or 0,
-  "web": number or 0,
-  "justeat": number or 0,
-  "ubereat": number or 0,
-  "deliveroo": number or 0,
-  "foodhub": number or 0,
-  "other": number or 0,
-  "totalSales": number or 0,
-  "expenses": number or 0,
-  "tillLeft": number or 0
-}
-Extract numbers as plain floats (no currency symbols). If a field is not visible, use 0. If total sales is shown, use it. Otherwise sum the channels.`}
-        ]}]
-      })
+    const result = await Tesseract.recognize(imageDataUrl,'eng',{
+      logger: m=>{
+        const pct = Math.round((m.progress||0)*100);
+        const bar=document.getElementById('ocr-bar');
+        const txt=document.getElementById('ocr-progress');
+        if(bar) bar.style.width=pct+'%';
+        if(txt){
+          if(m.status==='recognizing text') txt.textContent=`Recognising text... ${pct}%`;
+          else if(m.status==='loading tesseract core') txt.textContent='Loading OCR engine...';
+          else if(m.status==='loading language traineddata') txt.textContent='Loading language data...';
+          else txt.textContent=m.status||'Processing...';
+        }
+      }
     });
-    const data=await resp.json();
-    const text=data.content&&data.content[0]&&data.content[0].text||'{}';
-    let parsed;
-    try{parsed=JSON.parse(text.replace(/```json|```/g,'').trim());}
-    catch{parsed={};}
-    _scannedData=parsed;
-    displayScanResults(parsed);
+    const text = result.data.text;
+    const parsed = parseReceiptText(text);
+    _scannedData = parsed;
+    displayScanResults(parsed, text);
   }catch(err){
-    document.getElementById('scan-results').innerHTML=`<div class="alert alert-warning">⚠ Could not connect to scanning service. Please enter data manually in the Daily Summary tab.<br><small>${err.message}</small></div>`;
+    document.getElementById('scan-results').innerHTML=`
+      <div class="alert alert-warning" style="margin-bottom:10px">⚠ OCR failed: ${err.message}</div>
+      <div style="font-size:12.5px;color:var(--text2)">Please use the <strong>Daily Summary</strong> tab to enter data manually.</div>`;
   }
 }
 
-function displayScanResults(d){
+function parseReceiptText(text){
+  const lines = text.split('\n').map(l=>l.trim()).filter(l=>l.length>0);
+  const result = {date:null,cash:0,card:0,web:0,justeat:0,ubereat:0,deliveroo:0,foodhub:0,other:0,totalSales:0,expenses:0,tillLeft:0};
+
+  // Helper: extract £ amount from a line
+  function extractAmount(line){
+    const m = line.match(/[£$]?\s*(\d+[\.,]\d{2})/);
+    if(m) return parseFloat(m[1].replace(',','.'));
+    const m2 = line.match(/(\d+[\.,]\d{2})/);
+    if(m2) return parseFloat(m2[1].replace(',','.'));
+    return 0;
+  }
+
+  // Helper: check if line contains keyword (case-insensitive)
+  function has(line,...words){
+    const u=line.toUpperCase();
+    return words.some(w=>u.includes(w.toUpperCase()));
+  }
+
+  for(const line of lines){
+    const amt = extractAmount(line);
+
+    // Date patterns: 13/03/2026 or 2026-03-13
+    if(!result.date){
+      const d1=line.match(/(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2,4})/);
+      if(d1){
+        const [,a,b,c]=d1;
+        const yr=c.length===2?'20'+c:c;
+        result.date=`${yr}-${b.padStart(2,'0')}-${a.padStart(2,'0')}`;
+      }
+      const d2=line.match(/DATE[:\s]+(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/i);
+      if(d2){const[,a,b,c]=d2;const yr=c.length===2?'20'+c:c;result.date=`${yr}-${b.padStart(2,'0')}-${a.padStart(2,'0')}`;}
+    }
+
+    if(amt===0) continue;
+
+    if(has(line,'CASH SALE','CASH')) result.cash=amt;
+    else if(has(line,'CARD SALE','CARD')) result.card=amt;
+    else if(has(line,'WEB SALE','WEB SALE','ONLINE')) result.web=amt;
+    else if(has(line,'JUST EAT','JUSTEAT','JUST-EAT')) result.justeat=amt;
+    else if(has(line,'UBER EAT','UBEREATS','UBER-EAT','UBER')) result.ubereat=amt;
+    else if(has(line,'DELIVEROO','DELIV')) result.deliveroo=amt;
+    else if(has(line,'FOODHUB','FOOD HUB')) result.foodhub=amt;
+    else if(has(line,'TOTAL','GRAND TOTAL')) result.totalSales=amt;
+    else if(has(line,'EXPENSE','EXP')) result.expenses=amt;
+    else if(has(line,'TILL LEFT','TILL')) result.tillLeft=amt;
+  }
+
+  // If no total found, calculate from channels
+  const channelSum = result.cash+result.card+result.web+result.justeat+result.ubereat+result.deliveroo+result.foodhub+result.other;
+  if(result.totalSales===0 && channelSum>0) result.totalSales=channelSum;
+
+  // If date not found, use today
+  if(!result.date) result.date=new Date().toISOString().split('T')[0];
+
+  return result;
+}
+
+function displayScanResults(d, rawText){
   const channels=[['💵 Cash','cash'],['💳 Card','card'],['🌐 Web Sales','web'],['🍕 Just Eat','justeat'],['🚗 Uber Eats','ubereat'],['🦘 Deliveroo','deliveroo'],['🍔 Foodhub','foodhub'],['📦 Other','other']];
+  const hasChannels = channels.some(([,k])=>d[k]&&d[k]>0);
   const html=`
-    <div class="scan-result-row"><span class="sr-label">📅 Date</span><span class="sr-val">${d.date||'Not found'}</span></div>
-    ${channels.filter(([,k])=>d[k]&&d[k]>0).map(([l,k])=>`<div class="scan-result-row"><span class="sr-label">${l}</span><span class="sr-val">${fmt(d[k])}</span></div>`).join('')}
-    <div class="scan-result-row" style="background:#dbeafe;border-color:#93c5fd;color:#1e40af"><span class="sr-label" style="font-size:13px">💰 Total Sales</span><span class="sr-val" style="font-size:14px;color:#1d4ed8">${fmt(d.totalSales)}</span></div>
-    ${d.expenses>0?`<div class="scan-result-row scan-pending"><span class="sr-label">🧾 Expenses</span><span class="sr-val">${fmt(d.expenses)}</span></div>`:''}
-    ${d.tillLeft>0?`<div class="scan-result-row scan-pending"><span class="sr-label">🏧 Till Left</span><span class="sr-val">${fmt(d.tillLeft)}</span></div>`:''}
-    <div class="alert alert-success" style="margin-top:8px;margin-bottom:0">✅ Data extracted successfully. Review above and click Save.</div>`;
+    <div class="scan-result-row"><span class="sr-label">📅 Date</span>
+      <span class="sr-val"><input type="text" id="scan-date-edit" value="${d.date||new Date().toISOString().split('T')[0]}" style="border:1px solid #a7f3d0;border-radius:5px;padding:2px 6px;font-size:12px;color:#059669;background:white;width:120px"/></span>
+    </div>
+    ${channels.filter(([,k])=>d[k]&&d[k]>0).map(([l,k])=>`
+    <div class="scan-result-row"><span class="sr-label">${l}</span>
+      <span class="sr-val"><input type="number" step="0.01" id="scan-${k}" value="${d[k]}" style="border:1px solid #a7f3d0;border-radius:5px;padding:2px 6px;font-size:12px;color:#059669;background:white;width:90px"/></span>
+    </div>`).join('')}
+    ${!hasChannels?`<div class="alert alert-warning" style="margin-bottom:8px">⚠ No sales channels detected. The receipt may be blurry or in an unusual format. You can enter amounts manually below.</div>
+    ${channels.map(([l,k])=>`<div class="scan-result-row scan-pending"><span class="sr-label">${l}</span><span class="sr-val"><input type="number" step="0.01" id="scan-${k}" value="0" style="border:1px solid #fcd34d;border-radius:5px;padding:2px 6px;font-size:12px;color:#92400e;background:white;width:90px"/></span></div>`).join('')}`:''}
+    <div class="scan-result-row" style="background:#dbeafe;border-color:#93c5fd;color:#1e40af">
+      <span class="sr-label" style="font-size:13px">💰 Total Sales</span>
+      <span class="sr-val"><input type="number" step="0.01" id="scan-total" value="${d.totalSales}" style="border:1px solid #93c5fd;border-radius:5px;padding:2px 6px;font-size:13px;font-weight:600;color:#1d4ed8;background:white;width:100px"/></span>
+    </div>
+    <div class="scan-result-row scan-pending">
+      <span class="sr-label">🧾 Expenses</span>
+      <span class="sr-val"><input type="number" step="0.01" id="scan-expenses" value="${d.expenses||0}" style="border:1px solid #fcd34d;border-radius:5px;padding:2px 6px;font-size:12px;color:#92400e;background:white;width:90px"/></span>
+    </div>
+    <div class="scan-result-row scan-pending">
+      <span class="sr-label">🏧 Till Left</span>
+      <span class="sr-val"><input type="number" step="0.01" id="scan-tillleft" value="${d.tillLeft||0}" style="border:1px solid #fcd34d;border-radius:5px;padding:2px 6px;font-size:12px;color:#92400e;background:white;width:90px"/></span>
+    </div>
+    <div class="alert alert-success" style="margin-top:8px;margin-bottom:0">✅ Review & edit values above, then click Save.</div>`;
   document.getElementById('scan-results').innerHTML=html;
   document.getElementById('scan-save-btn').style.display='block';
 }
 
 function saveScanResult(){
-  if(!_scannedData){alert('No scanned data to save');return;}
-  const d=_scannedData;
-  const ch={cash:d.cash||0,card:d.card||0,web:d.web||0,justeat:d.justeat||0,ubereat:d.ubereat||0,deliveroo:d.deliveroo||0,foodhub:d.foodhub||0,other:d.other||0};
-  const total=d.totalSales||Object.values(ch).reduce((a,b)=>a+b,0);
-  let dateStr=d.date||new Date().toISOString().split('T')[0];
-  if(dateStr.includes('/')){const p=dateStr.split('/');if(p.length===3)dateStr=`${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;}
-  DB.dailySummaries.push({id:Date.now(),date:dateStr,channels:ch,totalSales:total,expenses:d.expenses||0,tillLeft:d.tillLeft||0,notes:'From receipt scan',source:'scan'});
+  // Read from editable fields in the scan results panel
+  function gv(id){const e=document.getElementById(id);return e?parseFloat(e.value)||0:0;}
+  function gs(id){const e=document.getElementById(id);return e?e.value.trim():'';}
+
+  const ch={
+    cash:gv('scan-cash'),card:gv('scan-card'),web:gv('scan-web'),
+    justeat:gv('scan-justeat'),ubereat:gv('scan-ubereat'),deliveroo:gv('scan-deliveroo'),
+    foodhub:gv('scan-foodhub'),other:gv('scan-other')
+  };
+
+  // Use entered total or sum channels
+  let total=gv('scan-total');
+  if(total===0) total=Object.values(ch).reduce((a,b)=>a+b,0);
+  if(total===0){alert('Please check the values — total sales is 0. Edit the figures and try again.');return;}
+
+  let dateStr=gs('scan-date-edit')||new Date().toISOString().split('T')[0];
+  // Convert DD/MM/YYYY → YYYY-MM-DD if needed
+  if(dateStr.includes('/')){
+    const p=dateStr.split('/');
+    if(p.length===3) dateStr=`${p[2].length===2?'20'+p[2]:p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
+  }
+
+  DB.dailySummaries.push({
+    id:Date.now(),date:dateStr,channels:ch,
+    totalSales:total,expenses:gv('scan-expenses'),
+    tillLeft:gv('scan-tillleft'),notes:'From receipt scan',source:'scan'
+  });
+
   _scannedData=null;_receiptDataUrl='';
-  alert('✅ Daily summary saved from receipt scan!');
-  showPage('salesweekly');setTimeout(()=>switchSalesTab('daily'),50);
+  document.getElementById('receipt-img-wrap').style.display='none';
+  document.getElementById('scan-results').innerHTML=`<div class="alert alert-success">✅ Daily summary saved! Switch to the Daily Summary tab to view it.</div>`;
+  document.getElementById('scan-save-btn').style.display='none';
+  // Reset file input
+  const inp=document.getElementById('receipt-input');if(inp)inp.value='';
 }
 
 // ── XLS IMPORT ─────────────────────────────────────────────
@@ -1393,4 +1480,3 @@ showPage('dashboard');
 </script>
 </body>
 </html>
-
